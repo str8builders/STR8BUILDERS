@@ -55,15 +55,6 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="tools"
-        options={{
-          title: 'Tools',
-          tabBarIcon: ({ color }) => (
-            <Wrench color={color} size={24} />
-          ),
-        }}
-      />
     </Tabs>
   );
 }
