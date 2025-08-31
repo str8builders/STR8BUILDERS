@@ -226,7 +226,7 @@ export default function Tools() {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={styles.title}>Construction Tools</Text>
-          <Wrench color="#FFF" size={24} />
+          <Calculator color="#FFF" size={24} />
         </View>
         
         {/* Tool Selector */}
