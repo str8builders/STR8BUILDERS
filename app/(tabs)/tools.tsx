@@ -13,6 +13,7 @@ export default function Tools() {
   
   // Quote Generator State
   const [activeQuoteTool, setActiveQuoteTool] = useState<'tax' | 'quote' | 'markup'>('tax');
+  const [activeQuoteTool, setActiveQuoteTool] = useState<'tax' | 'quote' | 'markup' | 'weather'>('tax');
   const [quoteItems, setQuoteItems] = useState([
     { id: 1, description: '', quantity: '', rate: '', amount: 0 }
   ]);
@@ -31,6 +32,117 @@ export default function Tools() {
     sellingPrice: '',
     calculationMode: 'markup' as 'markup' | 'margin' | 'selling'
   });
+
+  // Weather Impact State
+  const [weatherData, setWeatherData] = useState({
+    temperature: '18',
+    windSpeed: '15',
+    humidity: '65',
+    precipitation: '0',
+    condition: 'partly-cloudy' as 'sunny' | 'partly-cloudy' | 'cloudy' | 'rainy' | 'stormy'
+  });
+  
+  const [selectedTrades, setSelectedTrades] = useState<string[]>(['general']);
+
+  // Trade definitions with weather requirements
+  const tradeRequirements = {
+    'general': {
+      name: 'General Construction',
+      icon: '🔨',
+      requirements: {
+        minTemp: 5,
+        maxTemp: 35,
+        maxWind: 25,
+        maxHumidity: 85,
+        maxPrecipitation: 2,
+        avoidConditions: ['stormy']
+      }
+    },
+    'roofing': {
+      name: 'Roofing',
+      icon: '🏠',
+      requirements: {
+        minTemp: 8,
+        maxTemp: 32,
+        maxWind: 15,
+        maxHumidity: 80,
+        maxPrecipitation: 0,
+        avoidConditions: ['rainy', 'stormy']
+      }
+    },
+    'painting': {
+      name: 'Painting (Exterior)',
+      icon: '🎨',
+      requirements: {
+        minTemp: 10,
+        maxTemp: 30,
+        maxWind: 20,
+        maxHumidity: 75,
+        maxPrecipitation: 0,
+        avoidConditions: ['rainy', 'stormy']
+      }
+    },
+    'concrete': {
+      name: 'Concrete Work',
+      icon: '🏗️',
+      requirements: {
+        minTemp: 5,
+        maxTemp: 30,
+        maxWind: 30,
+        maxHumidity: 90,
+        maxPrecipitation: 1,
+        avoidConditions: ['stormy']
+      }
+    },
+    'electrical': {
+      name: 'Electrical (Outdoor)',
+      icon: '⚡',
+      requirements: {
+        minTemp: 0,
+        maxTemp: 40,
+        maxWind: 35,
+        maxHumidity: 95,
+        maxPrecipitation: 0,
+        avoidConditions: ['rainy', 'stormy']
+      }
+    },
+    'plumbing': {
+      name: 'Plumbing (Outdoor)',
+      icon: '🔧',
+      requirements: {
+        minTemp: 2,
+        maxTemp: 38,
+        maxWind: 30,
+        maxHumidity: 90,
+        maxPrecipitation: 5,
+        avoidConditions: ['stormy']
+      }
+    },
+    'landscaping': {
+      name: 'Landscaping',
+      icon: '🌱',
+      requirements: {
+        minTemp: 8,
+        maxTemp: 35,
+        maxWind: 25,
+        maxHumidity: 85,
+        maxPrecipitation: 3,
+        avoidConditions: ['stormy']
+      }
+    },
+    'demolition': {
+      name: 'Demolition',
+      icon: '🔨',
+      requirements: {
+        minTemp: 0,
+        maxTemp: 40,
+        maxWind: 20,
+        maxHumidity: 95,
+        maxPrecipitation: 8,
+        avoidConditions: ['stormy']
+      }
+    }
+  };
 
   // NZ Tax brackets for 2024-2025
   const taxBrackets = [
@@ -195,6 +307,96 @@ export default function Tools() {
     }
   };
 
+  // Weather Impact Functions
+  const calculateWorkSuitability = (tradeKey: string) => {
+    const trade = tradeRequirements[tradeKey as keyof typeof tradeRequirements];
+    const temp = parseFloat(weatherData.temperature);
+    const wind = parseFloat(weatherData.windSpeed);
+    const humidity = parseFloat(weatherData.humidity);
+    const precipitation = parseFloat(weatherData.precipitation);
+    
+    let score = 100;
+    const issues: string[] = [];
+    
+    // Temperature check
+    if (temp < trade.requirements.minTemp) {
+      score -= 30;
+      issues.push(`Too cold (${temp}°C < ${trade.requirements.minTemp}°C)`);
+    } else if (temp > trade.requirements.maxTemp) {
+      score -= 25;
+      issues.push(`Too hot (${temp}°C > ${trade.requirements.maxTemp}°C)`);
+    }
+    
+    // Wind check
+    if (wind > trade.requirements.maxWind) {
+      score -= 25;
+      issues.push(`Too windy (${wind}km/h > ${trade.requirements.maxWind}km/h)`);
+    }
+    
+    // Humidity check
+    if (humidity > trade.requirements.maxHumidity) {
+      score -= 15;
+      issues.push(`High humidity (${humidity}% > ${trade.requirements.maxHumidity}%)`);
+    }
+    
+    // Precipitation check
+    if (precipitation > trade.requirements.maxPrecipitation) {
+      score -= 35;
+      issues.push(`Rain/precipitation (${precipitation}mm > ${trade.requirements.maxPrecipitation}mm)`);
+    }
+    
+    // Condition check
+    if (trade.requirements.avoidConditions.includes(weatherData.condition)) {
+      score -= 40;
+      issues.push(`Unsuitable conditions (${weatherData.condition})`);
+    }
+    
+    score = Math.max(0, score);
+    
+    let suitability: 'Excellent' | 'Good' | 'Fair' | 'Poor' | 'Dangerous';
+    if (score >= 90) suitability = 'Excellent';
+    else if (score >= 70) suitability = 'Good';
+    else if (score >= 50) suitability = 'Fair';
+    else if (score >= 30) suitability = 'Poor';
+    else suitability = 'Dangerous';
+    
+    return { score, suitability, issues };
+  };
+
+  const getSuitabilityColor = (suitability: string) => {
+    switch (suitability) {
+      case 'Excellent':
+        return '#10B981';
+      case 'Good':
+        return '#3B82F6';
+      case 'Fair':
+        return '#F59E0B';
+      case 'Poor':
+        return '#EF4444';
+      case 'Dangerous':
+        return '#DC2626';
+      default:
+        return '#94A3B8';
+    }
+  };
+
+  const getWeatherIcon = (condition: string) => {
+    switch (condition) {
+      case 'sunny':
+        return '☀️';
+      case 'partly-cloudy':
+        return '⛅';
+      case 'cloudy':
+        return '☁️';
+      case 'rainy':
+        return '🌧️';
+      case 'stormy':
+        return '⛈️';
+      default:
+        return '☁️';
+    }
+  };
+
   const tools = [
     {
       icon: <Calculator color="#3B82F6" size={24} />,
@@ -259,6 +461,16 @@ export default function Tools() {
               <Percent color={activeQuoteTool === 'markup' ? '#FFF' : '#94A3B8'} size={20} />
               <Text style={[styles.toolTabText, activeQuoteTool === 'markup' && styles.activeToolTabText]}>
                 Markup Calculator
+              </Text>
+            </Pressable>
+            
+            <Pressable 
+              style={[styles.toolTab, activeQuoteTool === 'weather' && styles.activeToolTab]}
+              onPress={() => setActiveQuoteTool('weather')}
+            >
+              <Text style={{ fontSize: 20 }}>{getWeatherIcon(weatherData.condition)}</Text>
+              <Text style={[styles.toolTabText, activeQuoteTool === 'weather' && styles.activeToolTabText]}>
+                Weather Impact
               </Text>
             </Pressable>
           </View>
@@ -640,6 +852,212 @@ export default function Tools() {
                   <Share color="#14B8A6" size={16} />
                   <Text style={styles.quoteActionText}>Share Quote</Text>
                 </Pressable>
+              </View>
+            </GlassCard>
+          </GlassCard>
+        )}
+        
+        {/* Weather Impact Calculator */}
+        {activeQuoteTool === 'weather' && (
+          <GlassCard variant="cyan" style={styles.calculatorCard}>
+            <View style={styles.calculatorHeader}>
+              <Text style={{ fontSize: 24 }}>{getWeatherIcon(weatherData.condition)}</Text>
+              <Text style={styles.calculatorTitle}>Weather Impact Calculator</Text>
+            </View>
+            
+            {/* Weather Input Section */}
+            <View style={styles.weatherInputSection}>
+              <Text style={styles.sectionTitle}>Current Weather Conditions</Text>
+              
+              <View style={styles.weatherInputGrid}>
+                <View style={styles.weatherInputItem}>
+                  <Text style={styles.inputLabel}>Temperature (°C)</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={weatherData.temperature}
+                    onChangeText={(text) => setWeatherData(prev => ({ ...prev, temperature: text }))}
+                    placeholder="18"
+                    placeholderTextColor="#64748B"
+                    keyboardType="numeric"
+                  />
+                </View>
+                
+                <View style={styles.weatherInputItem}>
+                  <Text style={styles.inputLabel}>Wind Speed (km/h)</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={weatherData.windSpeed}
+                    onChangeText={(text) => setWeatherData(prev => ({ ...prev, windSpeed: text }))}
+                    placeholder="15"
+                    placeholderTextColor="#64748B"
+                    keyboardType="numeric"
+                  />
+                </View>
+                
+                <View style={styles.weatherInputItem}>
+                  <Text style={styles.inputLabel}>Humidity (%)</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={weatherData.humidity}
+                    onChangeText={(text) => setWeatherData(prev => ({ ...prev, humidity: text }))}
+                    placeholder="65"
+                    placeholderTextColor="#64748B"
+                    keyboardType="numeric"
+                  />
+                </View>
+                
+                <View style={styles.weatherInputItem}>
+                  <Text style={styles.inputLabel}>Rain (mm)</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={weatherData.precipitation}
+                    onChangeText={(text) => setWeatherData(prev => ({ ...prev, precipitation: text }))}
+                    placeholder="0"
+                    placeholderTextColor="#64748B"
+                    keyboardType="numeric"
+                  />
+                </View>
+              </View>
+              
+              {/* Weather Condition Selector */}
+              <View style={styles.conditionSelector}>
+                <Text style={styles.inputLabel}>Weather Condition</Text>
+                <View style={styles.conditionButtons}>
+                  {[
+                    { key: 'sunny', label: 'Sunny', icon: '☀️' },
+                    { key: 'partly-cloudy', label: 'Partly Cloudy', icon: '⛅' },
+                    { key: 'cloudy', label: 'Cloudy', icon: '☁️' },
+                    { key: 'rainy', label: 'Rainy', icon: '🌧️' },
+                    { key: 'stormy', label: 'Stormy', icon: '⛈️' },
+                  ].map((condition) => (
+                    <Pressable
+                      key={condition.key}
+                      style={[
+                        styles.conditionButton,
+                        weatherData.condition === condition.key && styles.activeConditionButton
+                      ]}
+                      onPress={() => setWeatherData(prev => ({ ...prev, condition: condition.key as any }))}
+                    >
+                      <Text style={styles.conditionIcon}>{condition.icon}</Text>
+                      <Text style={[
+                        styles.conditionText,
+                        weatherData.condition === condition.key && styles.activeConditionText
+                      ]}>
+                        {condition.label}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            </View>
+            
+            {/* Trade Selection */}
+            <View style={styles.tradeSelectionSection}>
+              <Text style={styles.sectionTitle}>Select Trades to Assess</Text>
+              <View style={styles.tradesGrid}>
+                {Object.entries(tradeRequirements).map(([key, trade]) => (
+                  <Pressable
+                    key={key}
+                    style={[
+                      styles.tradeButton,
+                      selectedTrades.includes(key) && styles.selectedTradeButton
+                    ]}
+                    onPress={() => {
+                      if (selectedTrades.includes(key)) {
+                        setSelectedTrades(prev => prev.filter(t => t !== key));
+                      } else {
+                        setSelectedTrades(prev => [...prev, key]);
+                      }
+                    }}
+                  >
+                    <Text style={styles.tradeIcon}>{trade.icon}</Text>
+                    <Text style={[
+                      styles.tradeText,
+                      selectedTrades.includes(key) && styles.selectedTradeText
+                    ]}>
+                      {trade.name}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+            
+            {/* Weather Impact Results */}
+            <View style={styles.weatherResultsSection}>
+              <Text style={styles.sectionTitle}>Work Suitability Assessment</Text>
+              
+              {selectedTrades.length === 0 ? (
+                <GlassCard variant="default" style={styles.noTradesSelected}>
+                  <Text style={styles.noTradesText}>Select trades to see weather impact assessment</Text>
+                </GlassCard>
+              ) : (
+                <View style={styles.tradeAssessments}>
+                  {selectedTrades.map((tradeKey) => {
+                    const trade = tradeRequirements[tradeKey as keyof typeof tradeRequirements];
+                    const assessment = calculateWorkSuitability(tradeKey);
+                    
+                    return (
+                      <GlassCard key={tradeKey} variant="electric" style={styles.assessmentCard}>
+                        <View style={styles.assessmentHeader}>
+                          <View style={styles.tradeInfo}>
+                            <Text style={styles.tradeIconLarge}>{trade.icon}</Text>
+                            <Text style={styles.tradeName}>{trade.name}</Text>
+                          </View>
+                          <View style={styles.suitabilityBadge}>
+                            <Text style={[
+                              styles.suitabilityText,
+                              { color: getSuitabilityColor(assessment.suitability) }
+                            ]}>
+                              {assessment.suitability}
+                            </Text>
+                            <Text style={styles.scoreText}>{assessment.score}/100</Text>
+                          </View>
+                        </View>
+                        
+                        {assessment.issues.length > 0 && (
+                          <View style={styles.issuesSection}>
+                            <Text style={styles.issuesTitle}>Weather Concerns:</Text>
+                            {assessment.issues.map((issue, index) => (
+                              <Text key={index} style={styles.issueText}>• {issue}</Text>
+                            ))}
+                          </View>
+                        )}
+                        
+                        {assessment.suitability === 'Excellent' && (
+                          <View style={styles.recommendationSection}>
+                            <Text style={styles.recommendationText}>
+                              ✅ Perfect conditions for {trade.name.toLowerCase()}
+                            </Text>
+                          </View>
+                        )}
+                        
+                        {assessment.suitability === 'Dangerous' && (
+                          <View style={styles.warningSection}>
+                            <Text style={styles.warningText}>
+                              ⚠️ Work not recommended - safety risk
+                            </Text>
+                          </View>
+                        )}
+                      </GlassCard>
+                    );
+                  })}
+                </View>
+              )}
+            </View>
+            
+            {/* Weather Tips */}
+            <GlassCard variant="default" style={styles.weatherTipsCard}>
+              <View style={styles.tipsHeader}>
+                <Text style={{ fontSize: 20 }}>🌤️</Text>
+                <Text style={styles.tipsTitle}>Weather Safety Tips</Text>
+              </View>
+              <View style={styles.tipsList}>
+                <Text style={styles.tipItem}>• Check weather forecast before starting work</Text>
+                <Text style={styles.tipItem}>• Have backup indoor tasks for bad weather days</Text>
+                <Text style={styles.tipItem}>• Ensure proper safety gear for conditions</Text>
+                <Text style={styles.tipItem}>• Consider rescheduling for extreme weather</Text>
+                <Text style={styles.tipItem}>• Monitor conditions throughout the day</Text>
+                <Text style={styles.tipItem}>• Prioritize worker safety over deadlines</Text>
               </View>
             </GlassCard>
           </GlassCard>
@@ -1348,6 +1766,188 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   markupTipsCard: {
+    marginVertical: 0,
+  },
+  weatherInputSection: {
+    marginBottom: 24,
+  },
+  weatherInputGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginBottom: 20,
+  },
+  weatherInputItem: {
+    flex: 1,
+    minWidth: '45%',
+  },
+  conditionSelector: {
+    marginBottom: 0,
+  },
+  conditionButtons: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  conditionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    gap: 6,
+  },
+  activeConditionButton: {
+    backgroundColor: '#06B6D4',
+    borderColor: '#06B6D4',
+  },
+  conditionIcon: {
+    fontSize: 16,
+  },
+  conditionText: {
+    fontSize: 12,
+    fontFamily: 'Inter-SemiBold',
+    color: '#94A3B8',
+  },
+  activeConditionText: {
+    color: '#FFF',
+  },
+  tradeSelectionSection: {
+    marginBottom: 24,
+  },
+  tradesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  tradeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    gap: 6,
+    marginBottom: 4,
+  },
+  selectedTradeButton: {
+    backgroundColor: '#3B82F6',
+    borderColor: '#3B82F6',
+  },
+  tradeIcon: {
+    fontSize: 16,
+  },
+  tradeText: {
+    fontSize: 12,
+    fontFamily: 'Inter-SemiBold',
+    color: '#94A3B8',
+  },
+  selectedTradeText: {
+    color: '#FFF',
+  },
+  weatherResultsSection: {
+    marginBottom: 24,
+  },
+  noTradesSelected: {
+    marginVertical: 0,
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  noTradesText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#94A3B8',
+  },
+  tradeAssessments: {
+    gap: 12,
+  },
+  assessmentCard: {
+    marginVertical: 0,
+  },
+  assessmentHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  tradeInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  tradeIconLarge: {
+    fontSize: 24,
+  },
+  tradeName: {
+    fontSize: 16,
+    fontFamily: 'Inter-Bold',
+    color: '#FFF',
+  },
+  suitabilityBadge: {
+    alignItems: 'flex-end',
+  },
+  suitabilityText: {
+    fontSize: 16,
+    fontFamily: 'Inter-Bold',
+  },
+  scoreText: {
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    color: '#94A3B8',
+    marginTop: 2,
+  },
+  issuesSection: {
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+  },
+  issuesTitle: {
+    fontSize: 14,
+    fontFamily: 'Inter-Bold',
+    color: '#EF4444',
+    marginBottom: 8,
+  },
+  issueText: {
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    color: '#EF4444',
+    marginBottom: 4,
+  },
+  recommendationSection: {
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    borderRadius: 8,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.3)',
+  },
+  recommendationText: {
+    fontSize: 14,
+    fontFamily: 'Inter-SemiBold',
+    color: '#10B981',
+    textAlign: 'center',
+  },
+  warningSection: {
+    backgroundColor: 'rgba(220, 38, 38, 0.1)',
+    borderRadius: 8,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(220, 38, 38, 0.3)',
+  },
+  warningText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Bold',
+    color: '#DC2626',
+    textAlign: 'center',
+  },
+  weatherTipsCard: {
     marginVertical: 0,
   },
 });
