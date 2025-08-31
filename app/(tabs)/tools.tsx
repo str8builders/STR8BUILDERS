@@ -207,6 +207,8 @@ export default function Tools() {
 
   const formatCurrency = (amount: number) => {
     return `$${amount.toLocaleString('en-NZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
   // Quote Generator Functions
   const addQuoteItem = () => {
     const newId = Math.max(...quoteItems.map(item => item.id)) + 1;
@@ -218,6 +220,109 @@ export default function Tools() {
       amount: 0 
     }]);
   };
+
+  const removeQuoteItem = (id: number) => {
+    setQuoteItems(quoteItems.filter(item => item.id !== id));
+  };
+
+  const updateQuoteItem = (id: number, field: string, value: string) => {
+    setQuoteItems(quoteItems.map(item => {
+      if (item.id === id) {
+        const updatedItem = { ...item, [field]: value };
+        
+        // Calculate amount if quantity or rate changes
+        if (field === 'quantity' || field === 'rate') {
+          const quantity = parseFloat(field === 'quantity' ? value : item.quantity) || 0;
+          const rate = parseFloat(field === 'rate' ? value : item.rate) || 0;
+          updatedItem.amount = quantity * rate;
+        }
+        
+        return updatedItem;
+      }
+      return item;
+    }));
+  };
+
+  const calculateQuoteTotal = () => {
+    const subtotal = quoteItems.reduce((sum, item) => sum + item.amount, 0);
+    const gst = subtotal * 0.15;
+    const total = subtotal + gst;
+    
+    return { subtotal, gst, total };
+  };
+
+  const copyQuote = () => {
+    // Implementation for copying quote
+  };
+
+  const shareQuote = () => {
+    // Implementation for sharing quote
+  };
+
+  const calculateMarkupResults = () => {
+    const costPrice = parseFloat(markupInputs.costPrice) || 0;
+    const markupPercentage = parseFloat(markupInputs.markupPercentage) || 0;
+    const sellingPrice = parseFloat(markupInputs.sellingPrice) || 0;
+
+    let results = {
+      costPrice: 0,
+      sellingPrice: 0,
+      profitAmount: 0,
+      markupPercentage: 0,
+      marginPercentage: 0
+    };
+
+    if (markupInputs.calculationMode === 'markup') {
+      results.costPrice = costPrice;
+      results.sellingPrice = costPrice * (1 + markupPercentage / 100);
+      results.profitAmount = results.sellingPrice - costPrice;
+      results.markupPercentage = markupPercentage;
+      results.marginPercentage = results.sellingPrice > 0 ? (results.profitAmount / results.sellingPrice) * 100 : 0;
+    } else {
+      results.sellingPrice = sellingPrice;
+      results.marginPercentage = markupPercentage;
+      results.profitAmount = sellingPrice * (markupPercentage / 100);
+      results.costPrice = sellingPrice - results.profitAmount;
+      results.markupPercentage = results.costPrice > 0 ? (results.profitAmount / results.costPrice) * 100 : 0;
+    }
+
+    return results;
+  };
+
+  const markupResults = calculateMarkupResults();
+
+  const assessWeatherSuitability = (trade: any) => {
+    const temp = parseFloat(weatherData.temperature);
+    const wind = parseFloat(weatherData.windSpeed);
+    const humidity = parseFloat(weatherData.humidity);
+    const precipitation = parseFloat(weatherData.precipitation);
+    const condition = weatherData.condition;
+
+    const req = trade.requirements;
+    const issues = [];
+
+    if (temp < req.minTemp) issues.push(`Temperature too low (${temp}°C < ${req.minTemp}°C)`);
+    if (temp > req.maxTemp) issues.push(`Temperature too high (${temp}°C > ${req.maxTemp}°C)`);
+    if (wind > req.maxWind) issues.push(`Wind too strong (${wind}km/h > ${req.maxWind}km/h)`);
+    if (humidity > req.maxHumidity) issues.push(`Humidity too high (${humidity}% > ${req.maxHumidity}%)`);
+    if (precipitation > req.maxPrecipitation) issues.push(`Too much precipitation (${precipitation}mm > ${req.maxPrecipitation}mm)`);
+    if (req.avoidConditions.includes(condition)) issues.push(`Weather condition not suitable (${condition})`);
+
+    let suitability = 'Excellent';
+    if (issues.length > 0) {
+      if (issues.some(issue => issue.includes('stormy') || issue.includes('too strong') || temp < 0)) {
+        suitability = 'Dangerous';
+      } else if (issues.length >= 3) {
+        suitability = 'Poor';
+      } else {
+        suitability = 'Caution';
+      }
+    }
+
+    return { suitability, issues };
+  };
+
+  const [activeQuoteTool, setActiveQuoteTool] = useState('quote');
   
   return (
     <View style={styles.container}>
@@ -403,6 +508,142 @@ export default function Tools() {
             </View>
           </GlassCard>
         </GlassCard>
+
+        {/* Weather Impact Tool */}
+        {activeQuoteTool === 'weather' && (
+          <GlassCard variant="orange" style={styles.calculatorCard}>
+            <View style={styles.calculatorHeader}>
+              <Text style={{ fontSize: 24 }}>🌤️</Text>
+              <Text style={styles.calculatorTitle}>Weather Impact Assessment</Text>
+            </View>
+            
+            {/* Weather Input */}
+            <View style={styles.weatherInputSection}>
+              <Text style={styles.sectionTitle}>Current Weather Conditions</Text>
+              
+              <View style={styles.weatherInputGrid}>
+                <View style={styles.weatherInputItem}>
+                  <Text style={styles.inputLabel}>Temperature (°C)</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={weatherData.temperature}
+                    onChangeText={(text) => setWeatherData(prev => ({ ...prev, temperature: text }))}
+                    placeholder="18"
+                    placeholderTextColor="#64748B"
+                    keyboardType="numeric"
+                  />
+                </View>
+                
+                <View style={styles.weatherInputItem}>
+                  <Text style={styles.inputLabel}>Wind Speed (km/h)</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={weatherData.windSpeed}
+                    onChangeText={(text) => setWeatherData(prev => ({ ...prev, windSpeed: text }))}
+                    placeholder="15"
+                    placeholderTextColor="#64748B"
+                    keyboardType="numeric"
+                  />
+                </View>
+                
+                <View style={styles.weatherInputItem}>
+                  <Text style={styles.inputLabel}>Humidity (%)</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={weatherData.humidity}
+                    onChangeText={(text) => setWeatherData(prev => ({ ...prev, humidity: text }))}
+                    placeholder="65"
+                    placeholderTextColor="#64748B"
+                    keyboardType="numeric"
+                  />
+                </View>
+                
+                <View style={styles.weatherInputItem}>
+                  <Text style={styles.inputLabel}>Precipitation (mm)</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={weatherData.precipitation}
+                    onChangeText={(text) => setWeatherData(prev => ({ ...prev, precipitation: text }))}
+                    placeholder="0"
+                    placeholderTextColor="#64748B"
+                    keyboardType="numeric"
+                  />
+                </View>
+              </View>
+            </View>
+            
+            {/* Trade Selection */}
+            <View style={styles.tradeSelectionSection}>
+              <Text style={styles.sectionTitle}>Select Trades to Assess</Text>
+              <View style={styles.tradeGrid}>
+                {Object.entries(tradeRequirements).map(([key, trade]) => (
+                  <Pressable
+                    key={key}
+                    style={[
+                      styles.tradeButton,
+                      selectedTrades.includes(key) && styles.selectedTradeButton
+                    ]}
+                    onPress={() => {
+                      if (selectedTrades.includes(key)) {
+                        setSelectedTrades(selectedTrades.filter(t => t !== key));
+                      } else {
+                        setSelectedTrades([...selectedTrades, key]);
+                      }
+                    }}
+                  >
+                    <Text style={styles.tradeIcon}>{trade.icon}</Text>
+                    <Text style={[
+                      styles.tradeText,
+                      selectedTrades.includes(key) && styles.selectedTradeText
+                    ]}>
+                      {trade.name}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+            
+            {/* Assessment Results */}
+            <View style={styles.assessmentResults}>
+              <Text style={styles.sectionTitle}>Weather Suitability Assessment</Text>
+              
+              {selectedTrades.length === 0 ? (
+                <GlassCard variant="default" style={styles.noTradesCard}>
+                  <Text style={styles.noTradesText}>Select trades to see weather assessment</Text>
+                </GlassCard>
+              ) : (
+                <View style={styles.assessmentGrid}>
+                  {selectedTrades.map(tradeKey => {
+                    const trade = tradeRequirements[tradeKey];
+                    const assessment = assessWeatherSuitability(trade);
+                    
+                    return (
+                      <GlassCard 
+                        key={tradeKey} 
+                        variant={
+                          assessment.suitability === 'Excellent' ? 'electric' :
+                          assessment.suitability === 'Caution' ? 'orange' :
+                          assessment.suitability === 'Poor' ? 'purple' : 'default'
+                        }
+                        style={styles.assessmentCard}
+                      >
+                        <View style={styles.assessmentHeader}>
+                          <Text style={styles.tradeIcon}>{trade.icon}</Text>
+                          <View style={styles.assessmentTitleSection}>
+                            <Text style={styles.assessmentTradeTitle}>{trade.name}</Text>
+                            <Text style={[
+                              styles.suitabilityBadge,
+                              assessment.suitability === 'Excellent' && styles.excellentBadge,
+                              assessment.suitability === 'Caution' && styles.cautionBadge,
+                              assessment.suitability === 'Poor' && styles.poorBadge,
+                              assessment.suitability === 'Dangerous' && styles.dangerousBadge
+                            ]}>
+                              {assessment.suitability}
+                            </Text>
+                          </View>
+                        </View>
+                        
+                        {assessment.issues.length > 0 && (
                           <View style={styles.issuesSection}>
                             <Text style={styles.issuesTitle}>Weather Concerns:</Text>
                             {assessment.issues.map((issue, index) => (
@@ -455,7 +696,7 @@ export default function Tools() {
         {activeQuoteTool === 'markup' && (
           <GlassCard variant="purple" style={styles.calculatorCard}>
             <View style={styles.calculatorHeader}>
-              <Percent color="#8B5CF6" size={24} />
+              <Text style={{ fontSize: 24 }}>%</Text>
               <Text style={styles.calculatorTitle}>Markup & Margin Calculator</Text>
             </View>
             
@@ -616,7 +857,7 @@ export default function Tools() {
               {/* Markup Tips */}
               <GlassCard variant="default" style={styles.markupTipsCard}>
                 <View style={styles.tipsHeader}>
-                  <Info color="#F59E0B" size={20} />
+                  <Text style={{ fontSize: 20 }}>💡</Text>
                   <Text style={styles.tipsTitle}>Pricing Tips</Text>
                 </View>
                 <View style={styles.tipsList}>
@@ -671,6 +912,18 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Bold',
     color: '#FFF',
   },
+  cardTitle: {
+    fontSize: 20,
+    fontFamily: 'Inter-Bold',
+    color: '#FFF',
+    marginBottom: 8,
+  },
+  cardSubtitle: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#94A3B8',
+    marginBottom: 20,
+  },
   periodSelector: {
     marginBottom: 24,
   },
@@ -679,6 +932,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Bold',
     color: '#FFF',
     marginBottom: 12,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   periodButtons: {
     flexDirection: 'row',
@@ -784,6 +1043,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Bold',
     color: '#3B82F6',
   },
+  effectiveRateContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
@@ -800,17 +1060,18 @@ const styles = StyleSheet.create({
   effectiveRateValue: {
     fontSize: 14,
     fontFamily: 'Inter-Bold',
+    color: '#FFF',
+  },
   quoteDetailsSection: {
     marginBottom: 24,
   },
-  inputGroup: {
+  inputRow: {
+    flexDirection: 'row',
+    gap: 12,
     marginBottom: 16,
   },
-  inputLabel: {
-    fontSize: 14,
-    fontFamily: 'Inter-SemiBold',
-    color: '#FFF',
-    marginBottom: 8,
+  inputHalf: {
+    flex: 1,
   },
   quoteDetailsGrid: {
     gap: 16,
@@ -854,6 +1115,33 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: 'Inter-SemiBold',
     color: '#14B8A6',
+  },
+  quoteItem: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  itemHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  itemNumber: {
+    fontSize: 14,
+    fontFamily: 'Inter-Bold',
+    color: '#14B8A6',
+  },
+  itemInputRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 12,
+  },
+  itemInputThird: {
+    flex: 1,
   },
   quoteItemsList: {
     maxHeight: 400,
@@ -901,15 +1189,25 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(20, 184, 166, 0.1)',
     borderRadius: 12,
     padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(20, 184, 166, 0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  amountText: {
     fontSize: 16,
     fontFamily: 'Inter-Bold',
     color: '#14B8A6',
     textAlign: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(20, 184, 166, 0.3)',
   },
   quoteNotesSection: {
     marginBottom: 24,
+  },
+  quoteSummary: {
+    marginVertical: 0,
+  },
+  summaryBreakdown: {
+    marginBottom: 20,
   },
   quoteTotalCard: {
     marginVertical: 0,
@@ -976,6 +1274,172 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-SemiBold',
     color: '#14B8A6',
   },
+  weatherInputSection: {
+    marginBottom: 24,
+  },
+  weatherInputGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  weatherInputItem: {
+    flex: 1,
+    minWidth: '45%',
+  },
+  tradeSelectionSection: {
+    marginBottom: 24,
+  },
+  tradeGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  tradeButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 12,
+    padding: 12,
+    alignItems: 'center',
+    minWidth: '30%',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  selectedTradeButton: {
+    backgroundColor: '#F59E0B',
+    borderColor: '#F59E0B',
+  },
+  tradeIcon: {
+    fontSize: 20,
+    marginBottom: 4,
+  },
+  tradeText: {
+    fontSize: 12,
+    fontFamily: 'Inter-SemiBold',
+    color: '#94A3B8',
+    textAlign: 'center',
+  },
+  selectedTradeText: {
+    color: '#FFF',
+  },
+  assessmentResults: {
+    marginBottom: 24,
+  },
+  noTradesCard: {
+    marginVertical: 0,
+    alignItems: 'center',
+    padding: 24,
+  },
+  noTradesText: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    color: '#94A3B8',
+    textAlign: 'center',
+  },
+  assessmentGrid: {
+    gap: 12,
+  },
+  assessmentCard: {
+    marginVertical: 0,
+  },
+  assessmentHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    gap: 12,
+  },
+  assessmentTitleSection: {
+    flex: 1,
+  },
+  assessmentTradeTitle: {
+    fontSize: 16,
+    fontFamily: 'Inter-Bold',
+    color: '#FFF',
+    marginBottom: 4,
+  },
+  suitabilityBadge: {
+    fontSize: 12,
+    fontFamily: 'Inter-Bold',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    textAlign: 'center',
+    alignSelf: 'flex-start',
+  },
+  excellentBadge: {
+    backgroundColor: '#10B981',
+    color: '#FFF',
+  },
+  cautionBadge: {
+    backgroundColor: '#F59E0B',
+    color: '#FFF',
+  },
+  poorBadge: {
+    backgroundColor: '#8B5CF6',
+    color: '#FFF',
+  },
+  dangerousBadge: {
+    backgroundColor: '#EF4444',
+    color: '#FFF',
+  },
+  issuesSection: {
+    marginTop: 12,
+  },
+  issuesTitle: {
+    fontSize: 14,
+    fontFamily: 'Inter-Bold',
+    color: '#FFF',
+    marginBottom: 8,
+  },
+  issueText: {
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    color: '#94A3B8',
+    marginBottom: 4,
+  },
+  recommendationSection: {
+    marginTop: 12,
+    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+    borderRadius: 8,
+    padding: 12,
+  },
+  recommendationText: {
+    fontSize: 12,
+    fontFamily: 'Inter-SemiBold',
+    color: '#10B981',
+  },
+  warningSection: {
+    marginTop: 12,
+    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+    borderRadius: 8,
+    padding: 12,
+  },
+  warningText: {
+    fontSize: 12,
+    fontFamily: 'Inter-SemiBold',
+    color: '#EF4444',
+  },
+  weatherTipsCard: {
+    marginVertical: 0,
+  },
+  tipsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    gap: 8,
+  },
+  tipsTitle: {
+    fontSize: 16,
+    fontFamily: 'Inter-Bold',
+    color: '#FFF',
+  },
+  tipsList: {
+    gap: 8,
+  },
+  tipItem: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#94A3B8',
+    lineHeight: 20,
+  },
   markupModeSection: {
     marginBottom: 24,
   },
@@ -1022,5 +1486,32 @@ const styles = StyleSheet.create({
   },
   markupResultsSection: {
     gap: 16,
+  },
+  markupResultCard: {
+    marginVertical: 0,
+  },
+  markupResultRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  markupResultLabel: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#94A3B8',
+  },
+  markupResultValue: {
+    fontSize: 14,
+    fontFamily: 'Inter-SemiBold',
+    color: '#FFF',
+  },
+  markupResultDivider: {
+    height: 1,
+    backgroundColor: 'rgba(148, 163, 184, 0.2)',
+    marginVertical: 8,
+  },
+  markupTipsCard: {
+    marginVertical: 0,
   },
 });
