@@ -152,6 +152,7 @@ export default function Tools() {
   };
   
   const calculateQuoteTotal = () => {
+    const subtotal = quoteItems.reduce((sum, item) => sum + item.amount, 0);
     const gst = subtotal * 0.15;
     return { subtotal, gst, total: subtotal + gst };
   };
