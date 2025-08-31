@@ -12,7 +12,7 @@ export default function Tools() {
   const [calculationType, setCalculationType] = useState<'annual' | 'monthly' | 'weekly'>('annual');
   
   // Quote Generator State
-  const [activeCalculator, setActiveCalculator] = useState<'tax' | 'quote' | 'markup'>('tax');
+  const [activeQuoteTool, setActiveQuoteTool] = useState<'tax' | 'quote' | 'markup'>('tax');
   const [quoteItems, setQuoteItems] = useState([
     { id: 1, description: '', quantity: '', rate: '', amount: 0 }
   ]);
