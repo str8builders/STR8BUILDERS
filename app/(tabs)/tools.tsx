@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, Pressable } from 'react-native';
 import { AnimatedBackground } from '@/components/ui/AnimatedBackground';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { FileText, Plus, Trash2, Copy, Share as ShareIcon } from 'lucide-react-native';
+import { FileText, Plus, Trash2, Copy, Share as ShareIcon, ExternalLink, BookOpen, Shield, Building, Hammer, AlertTriangle, CheckCircle, Download, Search } from 'lucide-react-native';
+import * as WebBrowser from 'expo-web-browser';
 
 export default function Tools() {
   // Tax Calculator State
@@ -259,6 +260,230 @@ export default function Tools() {
     // Implementation for sharing quote
   };
 
+  const openExternalLink = async (url: string) => {
+    try {
+      await WebBrowser.openBrowserAsync(url);
+    } catch (error) {
+      console.error('Error opening link:', error);
+    }
+  };
+
+  // New Zealand Building Resources
+  const buildingResources = [
+    {
+      category: 'Health & Safety',
+      icon: <Shield color="#EF4444" size={20} />,
+      color: '#EF4444',
+      resources: [
+        {
+          name: 'WorkSafe New Zealand',
+          description: 'Official workplace health and safety guidance',
+          url: 'https://www.worksafe.govt.nz/',
+          type: 'Official'
+        },
+        {
+          name: 'Construction Health & Safety Manual',
+          description: 'Comprehensive safety guidelines for construction',
+          url: 'https://www.worksafe.govt.nz/topic-and-industry/construction/',
+          type: 'Guide'
+        },
+        {
+          name: 'Site Safe NZ',
+          description: 'Construction industry safety organization',
+          url: 'https://www.sitesafe.org.nz/',
+          type: 'Organization'
+        },
+        {
+          name: 'Health & Safety at Work Act',
+          description: 'Legal requirements and compliance',
+          url: 'https://www.worksafe.govt.nz/laws-and-regulations/acts/hswa/',
+          type: 'Legal'
+        }
+      ]
+    },
+    {
+      category: 'Building Codes & Standards',
+      icon: <Building color="#3B82F6" size={20} />,
+      color: '#3B82F6',
+      resources: [
+        {
+          name: 'New Zealand Building Code',
+          description: 'Official building standards and requirements',
+          url: 'https://www.building.govt.nz/building-code-compliance/',
+          type: 'Official'
+        },
+        {
+          name: 'Building Consent Authority',
+          description: 'Local council building consent information',
+          url: 'https://www.building.govt.nz/getting-a-building-consent/',
+          type: 'Process'
+        },
+        {
+          name: 'NZS 3604 Timber Framing',
+          description: 'Standard for light timber frame buildings',
+          url: 'https://www.standards.govt.nz/',
+          type: 'Standard'
+        },
+        {
+          name: 'E2/AS1 External Moisture',
+          description: 'Acceptable solution for external moisture',
+          url: 'https://www.building.govt.nz/building-code-compliance/e-moisture/',
+          type: 'Standard'
+        }
+      ]
+    },
+    {
+      category: 'Product Guides & Systems',
+      icon: <Hammer color="#10B981" size={20} />,
+      color: '#10B981',
+      resources: [
+        {
+          name: 'GIB® Systems Guide',
+          description: 'Plasterboard installation and finishing guide',
+          url: 'https://www.gib.co.nz/assets/Uploads/GIB-Systems-Guide.pdf',
+          type: 'Guide'
+        },
+        {
+          name: 'MiTek Connector Guide',
+          description: 'Timber connector installation guide',
+          url: 'https://www.mitek.com.au/literature/',
+          type: 'Guide'
+        },
+        {
+          name: 'James Hardie Installation',
+          description: 'Fiber cement installation guidelines',
+          url: 'https://www.jameshardie.co.nz/homeowner/installation-guides',
+          type: 'Guide'
+        },
+        {
+          name: 'Colorsteel Roofing Guide',
+          description: 'Steel roofing installation manual',
+          url: 'https://www.colorsteel.co.nz/technical-resources/',
+          type: 'Guide'
+        },
+        {
+          name: 'Pink® Batts Installation',
+          description: 'Insulation installation guide',
+          url: 'https://www.pinkbatts.co.nz/technical-support/',
+          type: 'Guide'
+        },
+        {
+          name: 'Resene Paint Systems',
+          description: 'Paint specification and application guide',
+          url: 'https://www.resene.co.nz/technical/',
+          type: 'Guide'
+        }
+      ]
+    },
+    {
+      category: 'Industry Organizations',
+      icon: <BookOpen color="#06B6D4" size={20} />,
+      color: '#06B6D4',
+      resources: [
+        {
+          name: 'Certified Builders NZ',
+          description: 'Professional building organization',
+          url: 'https://www.certifiedbuilders.co.nz/',
+          type: 'Organization'
+        },
+        {
+          name: 'Master Builders NZ',
+          description: 'Industry association and training',
+          url: 'https://www.masterbuilder.org.nz/',
+          type: 'Organization'
+        },
+        {
+          name: 'Building Industry Federation',
+          description: 'Industry advocacy and support',
+          url: 'https://www.bif.org.nz/',
+          type: 'Organization'
+        },
+        {
+          name: 'NZCB - NZ Certified Builders',
+          description: 'Certification and professional development',
+          url: 'https://www.nzcb.nz/',
+          type: 'Certification'
+        }
+      ]
+    },
+    {
+      category: 'Technical Resources',
+      icon: <CheckCircle color="#8B5CF6" size={20} />,
+      color: '#8B5CF6',
+      resources: [
+        {
+          name: 'BRANZ Technical Papers',
+          description: 'Building research and technical information',
+          url: 'https://www.branz.co.nz/',
+          type: 'Research'
+        },
+        {
+          name: 'CodeMark Certificates',
+          description: 'Product certification database',
+          url: 'https://www.codemark.co.nz/',
+          type: 'Database'
+        },
+        {
+          name: 'MBIE Building Resources',
+          description: 'Ministry guidance and updates',
+          url: 'https://www.building.govt.nz/',
+          type: 'Official'
+        },
+        {
+          name: 'NZ Building Performance',
+          description: 'Building performance and compliance',
+          url: 'https://www.building.govt.nz/building-performance/',
+          type: 'Performance'
+        }
+      ]
+    },
+    {
+      category: 'Emergency & Weather',
+      icon: <AlertTriangle color="#F59E0B" size={20} />,
+      color: '#F59E0B',
+      resources: [
+        {
+          name: 'MetService Weather',
+          description: 'Official NZ weather forecasts',
+          url: 'https://www.metservice.com/',
+          type: 'Weather'
+        },
+        {
+          name: 'Civil Defence Emergency',
+          description: 'Emergency management information',
+          url: 'https://www.civildefence.govt.nz/',
+          type: 'Emergency'
+        },
+        {
+          name: 'GeoNet Earthquake Info',
+          description: 'Earthquake and geological hazards',
+          url: 'https://www.geonet.org.nz/',
+          type: 'Geological'
+        },
+        {
+          name: 'Fire Emergency NZ',
+          description: 'Fire safety and emergency response',
+          url: 'https://www.fireandemergency.nz/',
+          type: 'Emergency'
+        }
+      ]
+    }
+  ];
+
+  const getResourceTypeColor = (type: string) => {
+    switch (type) {
+      case 'Official': return '#3B82F6';
+      case 'Guide': return '#10B981';
+      case 'Organization': return '#06B6D4';
+      case 'Legal': return '#EF4444';
+      case 'Standard': return '#8B5CF6';
+      case 'Research': return '#F59E0B';
+      case 'Emergency': return '#DC2626';
+      case 'Weather': return '#0EA5E9';
+      default: return '#94A3B8';
+    }
+  };
+
   const calculateMarkupResults = () => {
     const costPrice = parseFloat(markupInputs.costPrice) || 0;
     const markupPercentage = parseFloat(markupInputs.markupPercentage) || 0;
@@ -505,6 +730,121 @@ export default function Tools() {
                 <ShareIcon color="#06B6D4" size={16} />
                 <Text style={styles.quoteActionText}>Share Quote</Text>
               </Pressable>
+            </View>
+          </GlassCard>
+        </GlassCard>
+        
+        {/* New Zealand Building Resources */}
+        <GlassCard variant="cyan" style={styles.calculatorCard}>
+          <View style={styles.calculatorHeader}>
+            <Text style={{ fontSize: 24 }}>🏗️</Text>
+            <Text style={styles.calculatorTitle}>NZ Building Resources</Text>
+          </View>
+          <Text style={styles.cardSubtitle}>
+            Essential resources for New Zealand construction professionals
+          </Text>
+          
+          <View style={styles.resourcesContainer}>
+            {buildingResources.map((category, categoryIndex) => (
+              <GlassCard key={categoryIndex} variant="default" style={styles.resourceCategory}>
+                <View style={styles.categoryHeader}>
+                  <View style={styles.categoryTitleContainer}>
+                    <View style={[styles.categoryIcon, { backgroundColor: `${category.color}20` }]}>
+                      {category.icon}
+                    </View>
+                    <Text style={styles.categoryTitle}>{category.category}</Text>
+                  </View>
+                  <Text style={styles.resourceCount}>
+                    {category.resources.length} resources
+                  </Text>
+                </View>
+                
+                <View style={styles.resourcesList}>
+                  {category.resources.map((resource, resourceIndex) => (
+                    <Pressable
+                      key={resourceIndex}
+                      style={styles.resourceItem}
+                      onPress={() => openExternalLink(resource.url)}
+                    >
+                      <View style={styles.resourceInfo}>
+                        <View style={styles.resourceHeader}>
+                          <Text style={styles.resourceName}>{resource.name}</Text>
+                          <View style={[
+                            styles.resourceTypeBadge,
+                            { backgroundColor: getResourceTypeColor(resource.type) }
+                          ]}>
+                            <Text style={styles.resourceTypeText}>{resource.type}</Text>
+                          </View>
+                        </View>
+                        <Text style={styles.resourceDescription}>{resource.description}</Text>
+                      </View>
+                      <ExternalLink color="#94A3B8" size={16} />
+                    </Pressable>
+                  ))}
+                </View>
+              </GlassCard>
+            ))}
+          </View>
+          
+          {/* Quick Access Favorites */}
+          <GlassCard variant="electric" style={styles.favoritesCard}>
+            <View style={styles.favoritesHeader}>
+              <Text style={{ fontSize: 20 }}>⭐</Text>
+              <Text style={styles.favoritesTitle}>Quick Access Favorites</Text>
+            </View>
+            
+            <View style={styles.favoritesList}>
+              <Pressable 
+                style={styles.favoriteItem}
+                onPress={() => openExternalLink('https://www.building.govt.nz/building-code-compliance/')}
+              >
+                <Building color="#3B82F6" size={18} />
+                <Text style={styles.favoriteText}>NZ Building Code</Text>
+                <ExternalLink color="#94A3B8" size={14} />
+              </Pressable>
+              
+              <Pressable 
+                style={styles.favoriteItem}
+                onPress={() => openExternalLink('https://www.worksafe.govt.nz/')}
+              >
+                <Shield color="#EF4444" size={18} />
+                <Text style={styles.favoriteText}>WorkSafe NZ</Text>
+                <ExternalLink color="#94A3B8" size={14} />
+              </Pressable>
+              
+              <Pressable 
+                style={styles.favoriteItem}
+                onPress={() => openExternalLink('https://www.gib.co.nz/assets/Uploads/GIB-Systems-Guide.pdf')}
+              >
+                <FileText color="#10B981" size={18} />
+                <Text style={styles.favoriteText}>GIB® Guide</Text>
+                <ExternalLink color="#94A3B8" size={14} />
+              </Pressable>
+              
+              <Pressable 
+                style={styles.favoriteItem}
+                onPress={() => openExternalLink('https://www.metservice.com/')}
+              >
+                <AlertTriangle color="#F59E0B" size={18} />
+                <Text style={styles.favoriteText}>MetService</Text>
+                <ExternalLink color="#94A3B8" size={14} />
+              </Pressable>
+            </View>
+          </GlassCard>
+          
+          {/* Resource Search Tips */}
+          <GlassCard variant="purple" style={styles.tipsCard}>
+            <View style={styles.tipsHeader}>
+              <Text style={{ fontSize: 20 }}>💡</Text>
+              <Text style={styles.tipsTitle}>Resource Tips</Text>
+            </View>
+            <View style={styles.tipsList}>
+              <Text style={styles.tipItem}>• Bookmark frequently used guides for quick access</Text>
+              <Text style={styles.tipItem}>• Check WorkSafe for latest safety updates</Text>
+              <Text style={styles.tipItem}>• Verify building code changes before starting projects</Text>
+              <Text style={styles.tipItem}>• Download PDF guides for offline access on site</Text>
+              <Text style={styles.tipItem}>• Join industry organizations for ongoing support</Text>
+              <Text style={styles.tipItem}>• Stay updated with MBIE building performance news</Text>
             </View>
           </GlassCard>
         </GlassCard>
@@ -1273,6 +1613,151 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Inter-SemiBold',
     color: '#14B8A6',
+  },
+  resourcesContainer: {
+    gap: 16,
+  },
+  resourceCategory: {
+    marginVertical: 0,
+  },
+  categoryHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  categoryTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  categoryIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  categoryTitle: {
+    fontSize: 18,
+    fontFamily: 'Inter-Bold',
+    color: '#FFF',
+  },
+  resourceCount: {
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    color: '#94A3B8',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  resourcesList: {
+    gap: 8,
+  },
+  resourceItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    gap: 12,
+  },
+  resourceInfo: {
+    flex: 1,
+  },
+  resourceHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  resourceName: {
+    fontSize: 16,
+    fontFamily: 'Inter-Bold',
+    color: '#FFF',
+    flex: 1,
+  },
+  resourceTypeBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+    marginLeft: 8,
+  },
+  resourceTypeText: {
+    fontSize: 10,
+    fontFamily: 'Inter-Bold',
+    color: '#FFF',
+  },
+  resourceDescription: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#94A3B8',
+    lineHeight: 18,
+  },
+  favoritesCard: {
+    marginVertical: 0,
+    marginTop: 16,
+  },
+  favoritesHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    gap: 8,
+  },
+  favoritesTitle: {
+    fontSize: 18,
+    fontFamily: 'Inter-Bold',
+    color: '#FFF',
+  },
+  favoritesList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  favoriteItem: {
+    flex: 1,
+    minWidth: '45%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 12,
+    padding: 12,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  favoriteText: {
+    fontSize: 12,
+    fontFamily: 'Inter-SemiBold',
+    color: '#FFF',
+    flex: 1,
+  },
+  tipsCard: {
+    marginVertical: 0,
+    marginTop: 16,
+  },
+  tipsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    gap: 8,
+  },
+  tipsTitle: {
+    fontSize: 16,
+    fontFamily: 'Inter-Bold',
+    color: '#FFF',
+  },
+  tipsList: {
+    gap: 8,
+  },
+  tipItem: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#94A3B8',
+    lineHeight: 20,
   },
   weatherInputSection: {
     marginBottom: 24,
