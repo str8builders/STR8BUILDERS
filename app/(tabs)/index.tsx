@@ -9,7 +9,7 @@ import { RecentActivity } from '../../components/dashboard/RecentActivity';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { UpcomingDeadlines } from '@/components/dashboard/UpcomingDeadlines';
 import { WeatherImpactWidget } from '@/components/dashboard/WeatherImpactWidget';
-import { User, ChevronDown, Settings, Camera, LogOut, CreditCard as Edit3, Save, X } from 'lucide-react-native';
+import { User, ChevronDown, Settings, Camera, LogOut, CreditCard as Edit3, Save, X, Building, DollarSign, Bell, Shield, Smartphone, CircleHelp as HelpCircle, Info, BookOpen, FileText } from 'lucide-react-native';
 import { useState } from 'react';
 
 export default function Dashboard() {
@@ -139,6 +139,107 @@ export default function Dashboard() {
                 >
                   <Camera color="#94A3B8" size={18} />
                   <Text style={styles.dropdownItemText}>Change Avatar</Text>
+                </Pressable>
+                
+                <Pressable 
+                  style={styles.dropdownItem}
+                  onPress={() => {
+                    setShowAvatarDropdown(false);
+                    // Navigate to finance section
+                  }}
+                >
+                  <DollarSign color="#10B981" size={18} />
+                  <Text style={styles.dropdownItemText}>Finance & Invoicing</Text>
+                </Pressable>
+                
+                <Pressable 
+                  style={styles.dropdownItem}
+                  onPress={() => {
+                    setShowAvatarDropdown(false);
+                    // Navigate to resources
+                  }}
+                >
+                  <BookOpen color="#3B82F6" size={18} />
+                  <Text style={styles.dropdownItemText}>Resources Library</Text>
+                </Pressable>
+                
+                <Pressable 
+                  style={styles.dropdownItem}
+                  onPress={() => {
+                    setShowAvatarDropdown(false);
+                    // Navigate to reports
+                  }}
+                >
+                  <FileText color="#06B6D4" size={18} />
+                  <Text style={styles.dropdownItemText}>Reports & Analytics</Text>
+                </Pressable>
+                
+                <View style={styles.dropdownDivider} />
+                
+                <Pressable 
+                  style={styles.dropdownItem}
+                  onPress={() => {
+                    setShowAvatarDropdown(false);
+                    // Open company settings
+                  }}
+                >
+                  <Building color="#14B8A6" size={18} />
+                  <Text style={styles.dropdownItemText}>Company Details</Text>
+                </Pressable>
+                
+                <Pressable 
+                  style={styles.dropdownItem}
+                  onPress={() => {
+                    setShowAvatarDropdown(false);
+                    // Open notifications settings
+                  }}
+                >
+                  <Bell color="#F59E0B" size={18} />
+                  <Text style={styles.dropdownItemText}>Notifications</Text>
+                </Pressable>
+                
+                <Pressable 
+                  style={styles.dropdownItem}
+                  onPress={() => {
+                    setShowAvatarDropdown(false);
+                    // Open privacy settings
+                  }}
+                >
+                  <Shield color="#EF4444" size={18} />
+                  <Text style={styles.dropdownItemText}>Privacy & Security</Text>
+                </Pressable>
+                
+                <Pressable 
+                  style={styles.dropdownItem}
+                  onPress={() => {
+                    setShowAvatarDropdown(false);
+                    // Open app settings
+                  }}
+                >
+                  <Smartphone color="#8B5CF6" size={18} />
+                  <Text style={styles.dropdownItemText}>App Settings</Text>
+                </Pressable>
+                
+                <Pressable 
+                  style={styles.dropdownItem}
+                  onPress={() => {
+                    setShowAvatarDropdown(false);
+                    // Open help
+                  }}
+                >
+                  <HelpCircle color="#10B981" size={18} />
+                  <Text style={styles.dropdownItemText}>Help & Support</Text>
+                </Pressable>
+                
+                <Pressable 
+                  style={styles.dropdownItem}
+                  onPress={() => {
+                    setShowAvatarDropdown(false);
+                    // Show about info
+                  }}
+                >
+                  <Info color="#94A3B8" size={18} />
+                  <Text style={styles.dropdownItemText}>About STR8 BUILD v3.4</Text>
                 </Pressable>
                 
                 <View style={styles.dropdownDivider} />
