@@ -5,6 +5,7 @@ import { GlassCard } from '@/components/ui/GlassCard';
 import { Calculator, Hammer, Chrome as Home, Droplets, Zap, Shield, Thermometer, Wrench, Camera, Cuboid as Cube, X, ChevronRight, Info, FileText } from 'lucide-react-native';
 import { ARMeasurementTool } from '@/components/tools/ARMeasurementTool';
 import { SiteDocumentationTool } from '@/components/tools/SiteDocumentationTool';
+import { BuildingResourcesLibrary } from '@/components/tools/BuildingResourcesLibrary';
 
 interface Calculator {
   id: string;
@@ -31,6 +32,7 @@ export default function Tools() {
   const [selectedCalculator, setSelectedCalculator] = useState<Calculator | null>(null);
   const [showARTool, setShowARTool] = useState(false);
   const [showDocumentationTool, setShowDocumentationTool] = useState(false);
+  const [showResourcesLibrary, setShowResourcesLibrary] = useState(false);
   const [show3DViewer, setShow3DViewer] = useState(false);
   const [calculatorInputs, setCalculatorInputs] = useState<Record<string, string>>({});
   const [results, setResults] = useState<any>(null);
@@ -796,6 +798,18 @@ export default function Tools() {
         </View>
       )}
 
+      {showResourcesLibrary && (
+        <View style={styles.fullScreenTool}>
+          <View style={styles.toolHeader}>
+            <Text style={styles.toolTitle}>Building Resources</Text>
+            <Pressable onPress={() => setShowResourcesLibrary(false)}>
+              <X color="#FFF" size={24} />
+            </Pressable>
+          </View>
+          <BuildingResourcesLibrary />
+        </View>
+      )}
+
       {show3DViewer && (
         <View style={styles.fullScreenTool}>
           <View style={styles.toolHeader}>
@@ -905,6 +919,25 @@ export default function Tools() {
                       <Text style={styles.advancedToolName}>Site Documentation</Text>
                       <Text style={styles.advancedToolDescription}>
                         Capture photos, notes, and measurements with GPS tagging and automatic organization.
+                      </Text>
+                    </View>
+                    <ChevronRight color="#94A3B8" size={20} />
+                  </Pressable>
+
+                  <Pressable
+                    style={styles.advancedToolItem}
+                    onPress={() => {
+                      setSelectedCategory(null);
+                      setShowResourcesLibrary(true);
+                    }}
+                  >
+                    <View style={styles.advancedToolIcon}>
+                      <BookOpen color="#06B6D4" size={24} />
+                    </View>
+                    <View style={styles.advancedToolInfo}>
+                      <Text style={styles.advancedToolName}>Building Resources Library</Text>
+                      <Text style={styles.advancedToolDescription}>
+                        Access NZ building codes, standards, guides, and professional resources with search and favorites.
                       </Text>
                     </View>
                     <ChevronRight color="#94A3B8" size={20} />
