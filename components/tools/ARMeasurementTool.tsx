@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Alert, Platform } from 'react-native';
 import { Camera, useCameraPermissions } from 'expo-camera';
 import { ForwardedCameraView } from '../ForwardedCameraView';
 import { GlassCard } from '../ui/GlassCard';
@@ -134,7 +134,11 @@ export const ARMeasurementTool: React.FC<{ onClose: () => void }> = ({ onClose }
 
   return (
     <View style={styles.container}>
-      <ForwardedCameraView style={styles.camera} onTouchEnd={handleScreenTouch}>
+      <ForwardedCameraView 
+        ref={Platform.OS !== 'web' ? useRef(null) : null}
+        style={styles.camera} 
+        onTouchEnd={handleScreenTouch}
+      >
         {/* Overlay UI */}
         <View style={styles.overlay}>
           {/* Header */}

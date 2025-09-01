@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, Pressable, TextInput, Modal, ScrollView, Alert, Image } from 'react-native';
+import { View, Text, StyleSheet, Pressable, TextInput, Modal, ScrollView, Alert, Image, Platform } from 'react-native';
 import { useCameraPermissions } from 'expo-camera';
 import { ForwardedCameraView } from '../ForwardedCameraView';
 import { GlassCard } from '../ui/GlassCard';
@@ -379,7 +379,7 @@ export const ProjectCamera: React.FC<ProjectCameraProps> = ({ onClose, selectedP
   return (
     <View style={styles.container}>
       <ForwardedCameraView 
-        ref={cameraRef}
+        ref={Platform.OS !== 'web' ? cameraRef : null}
         style={styles.camera} 
         facing={facing}
       >
