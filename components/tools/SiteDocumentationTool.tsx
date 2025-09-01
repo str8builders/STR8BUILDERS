@@ -408,14 +408,6 @@ export const SiteDocumentationTool: React.FC = () => {
     </View>
   );
 
-  const handleTakePhoto = () => {
-    Alert.alert(
-      'Camera Integration',
-      'This would open the camera to take a photo with automatic GPS tagging, timestamp, and integration with the current documentation entry.',
-      [{ text: 'OK' }]
-    );
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
