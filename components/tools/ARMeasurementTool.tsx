@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
-import { Camera, CameraView, useCameraPermissions } from 'expo-camera';
+import { Camera, useCameraPermissions } from 'expo-camera';
+import { ForwardedCameraView } from '../ForwardedCameraView';
 import { GlassCard } from '../ui/GlassCard';
 import { Crosshair, Ruler, Square, RotateCcw, Save, X } from 'lucide-react-native';
 
@@ -133,7 +134,7 @@ export const ARMeasurementTool: React.FC<{ onClose: () => void }> = ({ onClose }
 
   return (
     <View style={styles.container}>
-      <CameraView style={styles.camera} onTouchEnd={handleScreenTouch}>
+      <ForwardedCameraView style={styles.camera} onTouchEnd={handleScreenTouch}>
         {/* Overlay UI */}
         <View style={styles.overlay}>
           {/* Header */}
@@ -276,7 +277,7 @@ export const ARMeasurementTool: React.FC<{ onClose: () => void }> = ({ onClose }
             </View>
           )}
         </View>
-      </CameraView>
+      </ForwardedCameraView>
     </View>
   );
 };
