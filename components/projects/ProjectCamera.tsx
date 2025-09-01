@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, Pressable, TextInput, Modal, ScrollView, Alert, Image } from 'react-native';
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import { useCameraPermissions } from 'expo-camera';
+import { ForwardedCameraView } from '../ForwardedCameraView';
 import { GlassCard } from '../ui/GlassCard';
 import { Camera, FlipHorizontal, X, Save, FileText, MapPin, Calendar, Tag, Trash2, Eye, Share } from 'lucide-react-native';
 import { useAppData } from '@/hooks/useAppData';
@@ -35,7 +36,7 @@ export const ProjectCamera: React.FC<ProjectCameraProps> = ({ onClose, selectedP
   const [photoTags, setPhotoTags] = useState('');
   const [savedPhotos, setSavedPhotos] = useState<ProjectPhoto[]>([]);
   const [selectedPhoto, setSelectedPhoto] = useState<ProjectPhoto | null>(null);
-  const cameraRef = useRef<CameraView>(null);
+  const cameraRef = useRef<any>(null);
 
   const siteLocations = [
     'Foundation', 'Framing', 'Roofing', 'Interior', 'Exterior', 'Services',
@@ -377,7 +378,7 @@ export const ProjectCamera: React.FC<ProjectCameraProps> = ({ onClose, selectedP
 
   return (
     <View style={styles.container}>
-      <CameraView 
+      <ForwardedCameraView 
         ref={cameraRef}
         style={styles.camera} 
         facing={facing}
@@ -463,7 +464,7 @@ export const ProjectCamera: React.FC<ProjectCameraProps> = ({ onClose, selectedP
             <View style={[styles.gridLine, styles.gridLineHorizontal2]} />
           </View>
         </View>
-      </CameraView>
+      </ForwardedCameraView>
 
       {/* Photo Notes Modal */}
       <Modal
