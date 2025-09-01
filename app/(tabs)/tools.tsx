@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Modal, TextInput, Alert } from 'react-native';
 import { AnimatedBackground } from '@/components/ui/AnimatedBackground';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { Calculator, Hammer, Chrome as Home, Droplets, Zap, Shield, Thermometer, Wrench, Camera, Cuboid as Cube, X, ChevronRight, Info } from 'lucide-react-native';
+import { Calculator, Hammer, Chrome as Home, Droplets, Zap, Shield, Thermometer, Wrench, Camera, Cuboid as Cube, X, ChevronRight, Info, FileText } from 'lucide-react-native';
+import { ARMeasurementTool } from '@/components/tools/ARMeasurementTool';
+import { SiteDocumentationTool } from '@/components/tools/SiteDocumentationTool';
 
 interface Calculator {
   id: string;
@@ -27,6 +29,9 @@ interface CalculatorInput {
 export default function Tools() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedCalculator, setSelectedCalculator] = useState<Calculator | null>(null);
+  const [showARTool, setShowARTool] = useState(false);
+  const [showDocumentationTool, setShowDocumentationTool] = useState(false);
+  const [show3DViewer, setShow3DViewer] = useState(false);
   const [calculatorInputs, setCalculatorInputs] = useState<Record<string, string>>({});
   const [results, setResults] = useState<any>(null);
 
@@ -85,7 +90,7 @@ export default function Tools() {
       name: 'Advanced Tools',
       icon: <Camera color="#EC4899" size={24} />,
       color: '#EC4899',
-      description: 'AR measurement, 3D models, smart notes'
+      description: 'AR measurement, site documentation, 3D models'
     },
   ];
 
@@ -772,6 +777,73 @@ export default function Tools() {
         </View>
       </ScrollView>
 
+      {/* Advanced Tools Integration */}
+      {showARTool && (
+        <View style={styles.fullScreenTool}>
+          <ARMeasurementTool onClose={() => setShowARTool(false)} />
+        </View>
+      )}
+
+      {showDocumentationTool && (
+        <View style={styles.fullScreenTool}>
+          <View style={styles.toolHeader}>
+            <Text style={styles.toolTitle}>Site Documentation</Text>
+            <Pressable onPress={() => setShowDocumentationTool(false)}>
+              <X color="#FFF" size={24} />
+            </Pressable>
+          </View>
+          <SiteDocumentationTool />
+        </View>
+      )}
+
+      {show3DViewer && (
+        <View style={styles.fullScreenTool}>
+          <View style={styles.toolHeader}>
+            <Text style={styles.toolTitle}>3D Model Viewer</Text>
+            <Pressable onPress={() => setShow3DViewer(false)}>
+              <X color="#FFF" size={24} />
+            </Pressable>
+          </View>
+          <View style={styles.tool3DContent}>
+            <GlassCard variant="electric" style={styles.tool3DCard}>
+              <View style={styles.tool3DHeader}>
+                <Cube color="#3B82F6" size={32} />
+                <Text style={styles.tool3DTitle}>3D Model Viewer</Text>
+              </View>
+              
+              <Text style={styles.tool3DDescription}>
+                Interactive 3D model viewer with measurement overlay capabilities for construction projects.
+              </Text>
+              
+              <View style={styles.tool3DFeatures}>
+                <Text style={styles.featuresTitle}>Features:</Text>
+                <Text style={styles.featureItem}>• Load and view 3D construction models</Text>
+                <Text style={styles.featureItem}>• Measure distances and areas in 3D space</Text>
+                <Text style={styles.featureItem}>• Add annotations and notes to model</Text>
+                <Text style={styles.featureItem}>• Export measurements to project files</Text>
+                <Text style={styles.featureItem}>• Share models with team members</Text>
+              </View>
+              
+              <View style={styles.tool3DActions}>
+                <Pressable style={styles.tool3DButton}>
+                  <Camera color="#FFF" size={20} />
+                  <Text style={styles.tool3DButtonText}>Load Model</Text>
+                </Pressable>
+                
+                <Pressable style={styles.tool3DButton}>
+                  <Info color="#FFF" size={20} />
+                  <Text style={styles.tool3DButtonText}>Tutorial</Text>
+                </Pressable>
+              </View>
+              
+              <Text style={styles.tool3DNote}>
+                Note: 3D model viewing requires WebGL support and works best on devices with sufficient processing power.
+              </Text>
+            </GlassCard>
+          </View>
+        </View>
+      )}
+
       {/* Category Calculators Modal */}
       <Modal
         visible={selectedCategory !== null}
@@ -791,23 +863,84 @@ export default function Tools() {
             </View>
             
             <ScrollView style={styles.calculatorsList}>
-              {selectedCategory && getCalculatorsByCategory(selectedCategory).map((calculator) => (
-                <Pressable
-                  key={calculator.id}
-                  style={styles.calculatorItem}
-                  onPress={() => {
-                    setSelectedCalculator(calculator);
-                    setSelectedCategory(null);
-                    resetCalculator();
-                  }}
-                >
-                  <View style={styles.calculatorInfo}>
-                    <Text style={styles.calculatorName}>{calculator.name}</Text>
-                    <Text style={styles.calculatorDescription}>{calculator.description}</Text>
-                  </View>
-                  <ChevronRight color="#94A3B8" size={20} />
-                </Pressable>
-              ))}
+              {selectedCategory === 'advanced' ? (
+                <View style={styles.advancedToolsList}>
+                  <Pressable
+                    style={styles.advancedToolItem}
+                    onPress={() => {
+                      setSelectedCategory(null);
+                      setShowARTool(true);
+                    }}
+                  >
+                    <View style={styles.advancedToolIcon}>
+                      <Camera color="#3B82F6" size={24} />
+                    </View>
+                    <View style={styles.advancedToolInfo}>
+                      <Text style={styles.advancedToolName}>AR Measurement Tool</Text>
+                      <Text style={styles.advancedToolDescription}>
+                        Use your camera to measure distances and areas in real-time with augmented reality overlay.
+                      </Text>
+                    </View>
+                    <ChevronRight color="#94A3B8" size={20} />
+                  </Pressable>
+
+                  <Pressable
+                    style={styles.advancedToolItem}
+                    onPress={() => {
+                      setSelectedCategory(null);
+                      setShowDocumentationTool(true);
+                    }}
+                  >
+                    <View style={styles.advancedToolIcon}>
+                      <FileText color="#10B981" size={24} />
+                    </View>
+                    <View style={styles.advancedToolInfo}>
+                      <Text style={styles.advancedToolName}>Site Documentation</Text>
+                      <Text style={styles.advancedToolDescription}>
+                        Capture photos, notes, and measurements with GPS tagging and automatic organization.
+                      </Text>
+                    </View>
+                    <ChevronRight color="#94A3B8" size={20} />
+                  </Pressable>
+
+                  <Pressable
+                    style={styles.advancedToolItem}
+                    onPress={() => {
+                      setSelectedCategory(null);
+                      setShow3DViewer(true);
+                    }}
+                  >
+                    <View style={styles.advancedToolIcon}>
+                      <Cube color="#8B5CF6" size={24} />
+                    </View>
+                    <View style={styles.advancedToolInfo}>
+                      <Text style={styles.advancedToolName}>3D Model Viewer</Text>
+                      <Text style={styles.advancedToolDescription}>
+                        View and measure 3D construction models with interactive measurement overlay.
+                      </Text>
+                    </View>
+                    <ChevronRight color="#94A3B8" size={20} />
+                  </Pressable>
+                </View>
+              ) : (
+                selectedCategory && getCalculatorsByCategory(selectedCategory).map((calculator) => (
+                  <Pressable
+                    key={calculator.id}
+                    style={styles.calculatorItem}
+                    onPress={() => {
+                      setSelectedCalculator(calculator);
+                      setSelectedCategory(null);
+                      resetCalculator();
+                    }}
+                  >
+                    <View style={styles.calculatorInfo}>
+                      <Text style={styles.calculatorName}>{calculator.name}</Text>
+                      <Text style={styles.calculatorDescription}>{calculator.description}</Text>
+                    </View>
+                    <ChevronRight color="#94A3B8" size={20} />
+                  </Pressable>
+                ))
+              )}
             </ScrollView>
           </View>
         </View>
@@ -998,6 +1131,135 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Inter-SemiBold',
     color: '#3B82F6',
+  },
+  fullScreenTool: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#0c0a1f',
+    zIndex: 1000,
+  },
+  toolHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 60,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    backgroundColor: 'rgba(26, 27, 58, 0.9)',
+  },
+  toolTitle: {
+    fontSize: 20,
+    fontFamily: 'Inter-Bold',
+    color: '#FFF',
+  },
+  tool3DContent: {
+    flex: 1,
+    padding: 20,
+    justifyContent: 'center',
+  },
+  tool3DCard: {
+    marginVertical: 0,
+    alignItems: 'center',
+  },
+  tool3DHeader: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  tool3DTitle: {
+    fontSize: 24,
+    fontFamily: 'Inter-Bold',
+    color: '#FFF',
+    marginTop: 12,
+  },
+  tool3DDescription: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    color: '#94A3B8',
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 24,
+  },
+  tool3DFeatures: {
+    alignSelf: 'stretch',
+    marginBottom: 24,
+  },
+  featuresTitle: {
+    fontSize: 16,
+    fontFamily: 'Inter-Bold',
+    color: '#FFF',
+    marginBottom: 12,
+  },
+  featureItem: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#94A3B8',
+    marginBottom: 8,
+    lineHeight: 20,
+  },
+  tool3DActions: {
+    flexDirection: 'row',
+    gap: 16,
+    marginBottom: 20,
+  },
+  tool3DButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#3B82F6',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 12,
+    gap: 8,
+  },
+  tool3DButtonText: {
+    fontSize: 14,
+    fontFamily: 'Inter-SemiBold',
+    color: '#FFF',
+  },
+  tool3DNote: {
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    color: '#64748B',
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
+  advancedToolsList: {
+    gap: 16,
+  },
+  advancedToolItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    gap: 16,
+  },
+  advancedToolIcon: {
+    width: 48,
+    height: 48,
+    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  advancedToolInfo: {
+    flex: 1,
+  },
+  advancedToolName: {
+    fontSize: 18,
+    fontFamily: 'Inter-Bold',
+    color: '#FFF',
+    marginBottom: 6,
+  },
+  advancedToolDescription: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#94A3B8',
+    lineHeight: 20,
   },
   modalOverlay: {
     flex: 1,
