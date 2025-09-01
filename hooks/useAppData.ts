@@ -85,13 +85,274 @@ export const useAppData = () => {
       const savedTimesheets = localStorage.getItem('str8build_timesheets');
       const savedInvoices = localStorage.getItem('str8build_invoices');
 
-      if (savedClients) setClients(JSON.parse(savedClients).map((c: any) => ({ ...c, createdAt: new Date(c.createdAt) })));
+      if (savedClients) {
+        setClients(JSON.parse(savedClients).map((c: any) => ({ ...c, createdAt: new Date(c.createdAt) })));
+      } else {
+        // Add sample data if no saved data exists
+        const sampleClients = createSampleData();
+        setClients(sampleClients.clients);
+        setProjects(sampleClients.projects);
+        setTimesheets(sampleClients.timesheets);
+        setInvoices(sampleClients.invoices);
+        
+        // Save sample data
+        saveData('str8build_clients', sampleClients.clients);
+        saveData('str8build_projects', sampleClients.projects);
+        saveData('str8build_timesheets', sampleClients.timesheets);
+        saveData('str8build_invoices', sampleClients.invoices);
+      }
+      
       if (savedProjects) setProjects(JSON.parse(savedProjects).map((p: any) => ({ ...p, createdAt: new Date(p.createdAt) })));
       if (savedTimesheets) setTimesheets(JSON.parse(savedTimesheets).map((t: any) => ({ ...t, createdAt: new Date(t.createdAt) })));
       if (savedInvoices) setInvoices(JSON.parse(savedInvoices).map((i: any) => ({ ...i, createdAt: new Date(i.createdAt) })));
     } catch (error) {
       console.error('Error loading data:', error);
     }
+  };
+
+  const createSampleData = () => {
+    const sampleClients: Client[] = [
+      {
+        id: '1',
+        name: 'Bay Park Developments',
+        email: 'contact@baypark.co.nz',
+        phone: '+64 7 574 2890',
+        address: '123 Bay Park Road, Tauranga 3110',
+        status: 'Active',
+        projectCount: 2,
+        totalBilled: 15750,
+        hourlyRate: 85,
+        createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      },
+      {
+        id: '2',
+        name: 'Omokoroa Properties Ltd',
+        email: 'admin@omokoroa.co.nz',
+        phone: '+64 7 548 1234',
+        address: '456 Omokoroa Road, Omokoroa 3114',
+        status: 'Active',
+        projectCount: 1,
+        totalBilled: 8500,
+        hourlyRate: 90,
+        createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
+      },
+      {
+        id: '3',
+        name: 'Mount Maunganui Homes',
+        email: 'info@mounthomes.co.nz',
+        phone: '+64 7 575 9876',
+        address: '789 Maunganui Road, Mount Maunganui 3116',
+        status: 'Completed',
+        projectCount: 1,
+        totalBilled: 12300,
+        hourlyRate: 80,
+        createdAt: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000),
+      },
+    ];
+
+    const sampleProjects: Project[] = [
+      {
+        id: '1',
+        name: 'Bay Park Renovation',
+        client: 'Bay Park Developments',
+        clientId: '1',
+        location: '123 Bay Park Road, Tauranga',
+        progress: 75,
+        deadline: '2025-03-15',
+        hourlyRate: 85,
+        status: 'In Progress',
+        estimatedCompletion: '2025-03-15',
+        createdAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000),
+      },
+      {
+        id: '2',
+        name: 'Omokoroa Deck Extension',
+        client: 'Omokoroa Properties Ltd',
+        clientId: '2',
+        location: '456 Omokoroa Road, Omokoroa',
+        progress: 45,
+        deadline: '2025-02-28',
+        hourlyRate: 90,
+        status: 'In Progress',
+        estimatedCompletion: '2025-02-28',
+        createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
+      },
+      {
+        id: '3',
+        name: 'Mount Maunganui Kitchen',
+        client: 'Mount Maunganui Homes',
+        clientId: '3',
+        location: '789 Maunganui Road, Mount Maunganui',
+        progress: 100,
+        deadline: '2024-12-20',
+        hourlyRate: 80,
+        status: 'Completed',
+        estimatedCompletion: '2024-12-20',
+        createdAt: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000),
+      },
+    ];
+
+    const sampleTimesheets: TimesheetEntry[] = [
+      {
+        id: '1',
+        clientId: '1',
+        projectId: '1',
+        projectName: 'Bay Park Renovation',
+        clientName: 'Bay Park Developments',
+        date: '2025-01-15',
+        startTime: '08:00',
+        endTime: '16:30',
+        hours: 8.5,
+        rate: 85,
+        description: 'Framing work on main living area extension',
+        invoiced: false,
+        createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+      },
+      {
+        id: '2',
+        clientId: '1',
+        projectId: '1',
+        projectName: 'Bay Park Renovation',
+        clientName: 'Bay Park Developments',
+        date: '2025-01-16',
+        startTime: '08:00',
+        endTime: '17:00',
+        hours: 9.0,
+        rate: 85,
+        description: 'Roof framing and installation of trusses',
+        invoiced: false,
+        createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
+      },
+      {
+        id: '3',
+        clientId: '2',
+        projectId: '2',
+        projectName: 'Omokoroa Deck Extension',
+        clientName: 'Omokoroa Properties Ltd',
+        date: '2025-01-14',
+        startTime: '09:00',
+        endTime: '15:30',
+        hours: 6.5,
+        rate: 90,
+        description: 'Foundation preparation and concrete pour',
+        invoiced: false,
+        createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
+      },
+      {
+        id: '4',
+        clientId: '1',
+        projectId: '1',
+        projectName: 'Bay Park Renovation',
+        clientName: 'Bay Park Developments',
+        date: '2025-01-10',
+        startTime: '08:30',
+        endTime: '16:00',
+        hours: 7.5,
+        rate: 85,
+        description: 'Site preparation and demolition work',
+        invoiced: true,
+        invoiceId: '1',
+        createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
+      },
+      {
+        id: '5',
+        clientId: '3',
+        projectId: '3',
+        projectName: 'Mount Maunganui Kitchen',
+        clientName: 'Mount Maunganui Homes',
+        date: '2024-12-15',
+        startTime: '08:00',
+        endTime: '17:30',
+        hours: 9.5,
+        rate: 80,
+        description: 'Kitchen cabinet installation and finishing',
+        invoiced: true,
+        invoiceId: '2',
+        createdAt: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000),
+      },
+    ];
+
+    const sampleInvoices: Invoice[] = [
+      {
+        id: '1',
+        clientId: '1',
+        clientName: 'Bay Park Developments',
+        invoiceNumber: 'INV-2025-0001',
+        date: '2025-01-12',
+        dueDate: '2025-02-11',
+        amount: 637.50,
+        status: 'Sent',
+        items: [
+          {
+            id: '1',
+            description: 'Bay Park Renovation - Site preparation and demolition work',
+            hours: 7.5,
+            rate: 85,
+            amount: 637.50,
+            timesheetEntryId: '4',
+          },
+        ],
+        notes: 'Payment terms: Net 30 days. Please reference invoice number when making payment.',
+        createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000),
+      },
+      {
+        id: '2',
+        clientId: '3',
+        clientName: 'Mount Maunganui Homes',
+        invoiceNumber: 'INV-2024-0015',
+        date: '2024-12-18',
+        dueDate: '2025-01-17',
+        amount: 760.00,
+        status: 'Paid',
+        items: [
+          {
+            id: '2',
+            description: 'Mount Maunganui Kitchen - Kitchen cabinet installation and finishing',
+            hours: 9.5,
+            rate: 80,
+            amount: 760.00,
+            timesheetEntryId: '5',
+          },
+        ],
+        notes: 'Final invoice for kitchen renovation project. Thank you for your business!',
+        createdAt: new Date(Date.now() - 32 * 24 * 60 * 60 * 1000),
+      },
+      {
+        id: '3',
+        clientId: '2',
+        clientName: 'Omokoroa Properties Ltd',
+        invoiceNumber: 'INV-2025-0002',
+        date: '2025-01-17',
+        dueDate: '2025-02-16',
+        amount: 1485.00,
+        status: 'Draft',
+        items: [
+          {
+            id: '3',
+            description: 'Omokoroa Deck Extension - Foundation preparation and concrete pour',
+            hours: 6.5,
+            rate: 90,
+            amount: 585.00,
+          },
+          {
+            id: '4',
+            description: 'Omokoroa Deck Extension - Deck framing and structural work',
+            hours: 10.0,
+            rate: 90,
+            amount: 900.00,
+          },
+        ],
+        notes: 'Deck extension project - Phase 1 and 2 completed.',
+        createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+      },
+    ];
+
+    return {
+      clients: sampleClients,
+      projects: sampleProjects,
+      timesheets: sampleTimesheets,
+      invoices: sampleInvoices,
+    };
   };
 
   const saveData = (key: string, data: any) => {
