@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, Modal, TextInput, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Modal, TextInput, Alert, Platform } from 'react-native';
 import { AnimatedBackground } from '@/components/ui/AnimatedBackground';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Calculator, Hammer, Chrome as Home, Droplets, Zap, Shield, Thermometer, Wrench, Camera, Cuboid as Cube, X, ChevronRight, Info, FileText } from 'lucide-react-native';
@@ -778,7 +778,7 @@ export default function Tools() {
       </ScrollView>
 
       {/* Advanced Tools Integration */}
-      {showARTool && (
+      {showARTool && Platform.OS !== 'web' && (
         <View style={styles.fullScreenTool}>
           <ARMeasurementTool onClose={() => setShowARTool(false)} />
         </View>
@@ -868,8 +868,15 @@ export default function Tools() {
                   <Pressable
                     style={styles.advancedToolItem}
                     onPress={() => {
-                      setSelectedCategory(null);
-                      setShowARTool(true);
+                      if (Platform.OS === 'web') {
+                        Alert.alert(
+                          'Not Available on Web',
+                          'AR Measurement Tool requires a mobile device with camera access. Please use this feature on iOS or Android.'
+                        );
+                      } else {
+                        setSelectedCategory(null);
+                        setShowARTool(true);
+                      }
                     }}
                   >
                     <View style={styles.advancedToolIcon}>
