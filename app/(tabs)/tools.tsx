@@ -2,21 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Modal, TextInput, Alert } from 'react-native';
 import { AnimatedBackground } from '@/components/ui/AnimatedBackground';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { 
-  Calculator, 
-  Hammer, 
-  Home, 
-  Droplets, 
-  Zap, 
-  Shield, 
-  Thermometer, 
-  Wrench,
-  Camera,
-  Cube,
-  X,
-  ChevronRight,
-  Info
-} from 'lucide-react-native';
+import { Calculator, Hammer, Chrome as Home, Droplets, Zap, Shield, Thermometer, Wrench, Camera, Cuboid as Cube, X, ChevronRight, Info } from 'lucide-react-native';
 
 interface Calculator {
   id: string;
