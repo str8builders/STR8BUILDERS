@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Chrome as Home, FolderOpen, Users } from 'lucide-react-native';
+import { Home, FolderOpen, Users } from 'lucide-react-native';
 
 export default function TabLayout() {
   return (
@@ -32,8 +32,8 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Dashboard',
-          tabBarIcon: ({ color }) => (
-            <Home color={color} size={24} />
+          tabBarIcon: ({ color, size }) => (
+            <Home color={color} size={size || 24} />
           ),
         }}
       />
@@ -41,8 +41,17 @@ export default function TabLayout() {
         name="projects"
         options={{
           title: 'Projects',
-          tabBarIcon: ({ color }) => (
-            <FolderOpen color={color} size={24} />
+          tabBarIcon: ({ color, size }) => (
+            <FolderOpen color={color} size={size || 24} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="clients"
+        options={{
+          title: 'Clients',
+          tabBarIcon: ({ color, size }) => (
+            <Users color={color} size={size || 24} />
           ),
         }}
       />
