@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Modal, TextInput, Alert, Platform } from 'react-native';
 import { AnimatedBackground } from '@/components/ui/AnimatedBackground';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { Calculator, Hammer, Chrome as Home, Droplets, Zap, Shield, Thermometer, Wrench, Camera, Cuboid as Cube, X, ChevronRight, Info, FileText } from 'lucide-react-native';
+import { Calculator, Hammer, Chrome as Home, Droplets, Zap, Shield, Thermometer, Wrench, Camera, Cuboid as Cube, X, ChevronRight, Info, FileText, BookOpen } from 'lucide-react-native';
 import { ARMeasurementTool } from '@/components/tools/ARMeasurementTool';
 import { SiteDocumentationTool } from '@/components/tools/SiteDocumentationTool';
+import { ProjectCamera } from '@/components/projects/ProjectCamera';
 import { BuildingResourcesLibrary } from '@/components/resources/BuildingResourcesLibrary';
 
 interface Calculator {
@@ -34,6 +35,7 @@ export default function Tools() {
   const [showDocumentationTool, setShowDocumentationTool] = useState(false);
   const [showResourcesLibrary, setShowResourcesLibrary] = useState(false);
   const [show3DViewer, setShow3DViewer] = useState(false);
+  const [showProjectCamera, setShowProjectCamera] = useState(false);
   const [calculatorInputs, setCalculatorInputs] = useState<Record<string, string>>({});
   const [results, setResults] = useState<any>(null);
 
@@ -798,6 +800,12 @@ export default function Tools() {
         </View>
       )}
 
+      {showProjectCamera && (
+        <View style={styles.fullScreenTool}>
+          <ProjectCamera onClose={() => setShowProjectCamera(false)} />
+        </View>
+      )}
+
       {showResourcesLibrary && (
         <View style={styles.fullScreenTool}>
           <View style={styles.toolHeader}>
@@ -919,6 +927,25 @@ export default function Tools() {
                       <Text style={styles.advancedToolName}>Site Documentation</Text>
                       <Text style={styles.advancedToolDescription}>
                         Capture photos, notes, and measurements with GPS tagging and automatic organization.
+                      </Text>
+                    </View>
+                    <ChevronRight color="#94A3B8" size={20} />
+                  </Pressable>
+
+                  <Pressable
+                    style={styles.advancedToolItem}
+                    onPress={() => {
+                      setSelectedCategory(null);
+                      setShowProjectCamera(true);
+                    }}
+                  >
+                    <View style={styles.advancedToolIcon}>
+                      <Camera color="#F59E0B" size={24} />
+                    </View>
+                    <View style={styles.advancedToolInfo}>
+                      <Text style={styles.advancedToolName}>Project Camera</Text>
+                      <Text style={styles.advancedToolDescription}>
+                        Take photos with notes and save to specific projects
                       </Text>
                     </View>
                     <ChevronRight color="#94A3B8" size={20} />
