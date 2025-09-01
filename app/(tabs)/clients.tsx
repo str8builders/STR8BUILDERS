@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Modal, TextInput, Alert } from 'react-native';
 import { AnimatedBackground } from '@/components/ui/AnimatedBackground';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { Plus, Phone, Mail, MapPin, Building, Users, FileText, Clock, DollarSign, Calendar, Eye, Send, Download, X, ChevronRight, Timer, Receipt, Check, Trash2, CreditCard as Edit3 } from 'lucide-react-native';
+import { Plus, Phone, Mail, MapPin, Building, Users, FileText, Clock, DollarSign, Calendar, Eye, Send, Download, X, Timer, Receipt, Check, Trash2, CreditCard as Edit3 } from 'lucide-react-native';
 import { useAppData } from '@/hooks/useAppData';
 import { generateInvoicePDF, generateTimesheetPDF, shareViaPDF, sendViaEmail } from '@/utils/pdfGenerator';
 
@@ -205,7 +205,6 @@ export default function Clients() {
               <Text style={styles.statusText}>{client.status}</Text>
             </View>
           </View>
-          <ChevronRight color="#94A3B8" size={20} />
         </View>
         
         <View style={styles.clientStats}>
