@@ -5,7 +5,7 @@ import { GlassCard } from '@/components/ui/GlassCard';
 import { Calculator, Hammer, Chrome as Home, Droplets, Zap, Shield, Thermometer, Wrench, Camera, Cuboid as Cube, X, ChevronRight, Info, FileText } from 'lucide-react-native';
 import { ARMeasurementTool } from '@/components/tools/ARMeasurementTool';
 import { SiteDocumentationTool } from '@/components/tools/SiteDocumentationTool';
-import { BuildingResourcesLibrary } from '@/components/tools/BuildingResourcesLibrary';
+import { BuildingResourcesLibrary } from '@/components/resources/BuildingResourcesLibrary';
 
 interface Calculator {
   id: string;
