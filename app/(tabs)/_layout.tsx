@@ -46,15 +46,6 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="clients"
-        options={{
-          title: 'Clients',
-          tabBarIcon: ({ color }) => (
-            <Users color={color} size={24} />
-          ),
-        }}
-      />
     </Tabs>
   );
 }
