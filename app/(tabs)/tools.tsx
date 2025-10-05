@@ -2,9 +2,15 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, Alert } from 'react-native';
 import { AnimatedBackground } from '@/components/ui/AnimatedBackground';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { Calculator, Ruler, DollarSign, Percent, Users, FileText, Plus, Minus, X, Divide, Equal, Mail, Phone, MapPin, Eye, Send, Download, Trash2, Check } from 'lucide-react-native';
+import { Calculator, Ruler, DollarSign, Percent, Users, FileText, Plus, Minus, X, Divide, Equal, Mail, Phone, MapPin, Eye, Send, Download, Trash2, Check, Mic, Camera, Clock, Trophy, TrendingUp } from 'lucide-react-native';
 import { useAppData } from '@/hooks/useAppData';
 import { generateInvoicePDF, shareViaPDF, sendViaEmail } from '@/utils/pdfGenerator';
+import { VoiceRecorder } from '@/components/voice/VoiceRecorder';
+import { PhotoDocumentation } from '@/components/photos/PhotoDocumentation';
+import { ExpenseTracker } from '@/components/expenses/ExpenseTracker';
+import { QuickWinTimer } from '@/components/timer/QuickWinTimer';
+import { AchievementSystem } from '@/components/gamification/AchievementSystem';
+import { CashFlowPredictor } from '@/components/cashflow/CashFlowPredictor';
 
 export default function Tools() {
   const {
@@ -20,7 +26,7 @@ export default function Tools() {
     deleteInvoice,
   } = useAppData();
 
-  const [activeTab, setActiveTab] = useState<'clients' | 'calculator' | 'converter'>('clients');
+  const [activeTab, setActiveTab] = useState<'clients' | 'calculator' | 'converter' | 'voice' | 'photos' | 'expenses' | 'timer' | 'achievements' | 'cashflow'>('clients');
   const [selectedClient, setSelectedClient] = useState<any>(null);
   const [showAddClientModal, setShowAddClientModal] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
@@ -885,39 +891,84 @@ export default function Tools() {
           <Text style={styles.title}>Tools</Text>
         </View>
         
-        <View style={styles.tabBar}>
-          <Pressable 
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.tabBar}
+          contentContainerStyle={styles.tabBarContent}
+        >
+          <Pressable
+            style={[styles.tab, activeTab === 'timer' && styles.activeTab]}
+            onPress={() => setActiveTab('timer')}
+          >
+            <Clock color={activeTab === 'timer' ? '#FFF' : '#94A3B8'} size={18} />
+            <Text style={[styles.tabText, activeTab === 'timer' && styles.activeTabText]}>Timer</Text>
+          </Pressable>
+
+          <Pressable
+            style={[styles.tab, activeTab === 'voice' && styles.activeTab]}
+            onPress={() => setActiveTab('voice')}
+          >
+            <Mic color={activeTab === 'voice' ? '#FFF' : '#94A3B8'} size={18} />
+            <Text style={[styles.tabText, activeTab === 'voice' && styles.activeTabText]}>Voice</Text>
+          </Pressable>
+
+          <Pressable
+            style={[styles.tab, activeTab === 'photos' && styles.activeTab]}
+            onPress={() => setActiveTab('photos')}
+          >
+            <Camera color={activeTab === 'photos' ? '#FFF' : '#94A3B8'} size={18} />
+            <Text style={[styles.tabText, activeTab === 'photos' && styles.activeTabText]}>Photos</Text>
+          </Pressable>
+
+          <Pressable
+            style={[styles.tab, activeTab === 'expenses' && styles.activeTab]}
+            onPress={() => setActiveTab('expenses')}
+          >
+            <DollarSign color={activeTab === 'expenses' ? '#FFF' : '#94A3B8'} size={18} />
+            <Text style={[styles.tabText, activeTab === 'expenses' && styles.activeTabText]}>Expenses</Text>
+          </Pressable>
+
+          <Pressable
+            style={[styles.tab, activeTab === 'cashflow' && styles.activeTab]}
+            onPress={() => setActiveTab('cashflow')}
+          >
+            <TrendingUp color={activeTab === 'cashflow' ? '#FFF' : '#94A3B8'} size={18} />
+            <Text style={[styles.tabText, activeTab === 'cashflow' && styles.activeTabText]}>Cash Flow</Text>
+          </Pressable>
+
+          <Pressable
+            style={[styles.tab, activeTab === 'achievements' && styles.activeTab]}
+            onPress={() => setActiveTab('achievements')}
+          >
+            <Trophy color={activeTab === 'achievements' ? '#FFF' : '#94A3B8'} size={18} />
+            <Text style={[styles.tabText, activeTab === 'achievements' && styles.activeTabText]}>Achievements</Text>
+          </Pressable>
+
+          <Pressable
             style={[styles.tab, activeTab === 'clients' && styles.activeTab]}
             onPress={() => setActiveTab('clients')}
           >
-            <Users color={activeTab === 'clients' ? '#FFF' : '#94A3B8'} size={20} />
-            <Text style={[styles.tabText, activeTab === 'clients' && styles.activeTabText]}>
-              Clients
-            </Text>
+            <Users color={activeTab === 'clients' ? '#FFF' : '#94A3B8'} size={18} />
+            <Text style={[styles.tabText, activeTab === 'clients' && styles.activeTabText]}>Clients</Text>
           </Pressable>
-          
-          <Pressable 
+
+          <Pressable
             style={[styles.tab, activeTab === 'calculator' && styles.activeTab]}
             onPress={() => setActiveTab('calculator')}
           >
-            <Calculator color={activeTab === 'calculator' ? '#FFF' : '#94A3B8'} size={20} />
-            <Text style={[styles.tabText, activeTab === 'calculator' && styles.activeTabText]}>
-              Calculator
-            </Text>
+            <Calculator color={activeTab === 'calculator' ? '#FFF' : '#94A3B8'} size={18} />
+            <Text style={[styles.tabText, activeTab === 'calculator' && styles.activeTabText]}>Calculator</Text>
           </Pressable>
-          
-          <Pressable 
-            style={[styles.tab, activeTab === 'converter' && styles.activeTab]}
-            onPress={() => setActiveTab('converter')}
-          >
-            <Ruler color={activeTab === 'converter' ? '#FFF' : '#94A3B8'} size={20} />
-            <Text style={[styles.tabText, activeTab === 'converter' && styles.activeTabText]}>
-              Converter
-            </Text>
-          </Pressable>
-        </View>
-        
+        </ScrollView>
+
         <View style={styles.tabContent}>
+          {activeTab === 'timer' && <QuickWinTimer />}
+          {activeTab === 'voice' && <VoiceRecorder />}
+          {activeTab === 'photos' && <PhotoDocumentation />}
+          {activeTab === 'expenses' && <ExpenseTracker />}
+          {activeTab === 'cashflow' && <CashFlowPredictor />}
+          {activeTab === 'achievements' && <AchievementSystem />}
           {activeTab === 'clients' && renderClientsInvoices()}
           {activeTab === 'calculator' && renderCalculator()}
           {activeTab === 'converter' && renderConverter()}
@@ -946,21 +997,24 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   tabBar: {
-    flexDirection: 'row',
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 16,
     padding: 4,
     marginHorizontal: 16,
     marginBottom: 20,
   },
+  tabBarContent: {
+    paddingHorizontal: 4,
+    gap: 4,
+  },
   tab: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
     borderRadius: 12,
-    gap: 8,
+    gap: 6,
   },
   activeTab: {
     backgroundColor: '#3B82F6',
