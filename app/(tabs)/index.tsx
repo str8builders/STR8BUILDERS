@@ -8,6 +8,7 @@ import { QuickStats } from '../../components/dashboard/QuickStats';
 import { RecentActivity } from '../../components/dashboard/RecentActivity';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { UpcomingDeadlines } from '@/components/dashboard/UpcomingDeadlines';
+import { TimesheetClock } from '@/components/dashboard/TimesheetClock';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Plus, Edit2, X } from 'lucide-react-native';
 
@@ -23,6 +24,7 @@ export default function Dashboard() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [customWidgets, setCustomWidgets] = useState<CustomWidget[]>([]);
   const [newWidget, setNewWidget] = useState({ title: '', content: '', type: 'note' as 'note' | 'stat' });
+  const [hiddenWidgets, setHiddenWidgets] = useState<string[]>([]);
 
   const addCustomWidget = () => {
     if (newWidget.title.trim()) {
@@ -41,6 +43,16 @@ export default function Dashboard() {
   const removeWidget = (id: string) => {
     setCustomWidgets(customWidgets.filter(w => w.id !== id));
   };
+
+  const toggleWidgetVisibility = (widgetId: string) => {
+    if (hiddenWidgets.includes(widgetId)) {
+      setHiddenWidgets(hiddenWidgets.filter(id => id !== widgetId));
+    } else {
+      setHiddenWidgets([...hiddenWidgets, widgetId]);
+    }
+  };
+
+  const isWidgetVisible = (widgetId: string) => !hiddenWidgets.includes(widgetId);
 
   return (
     <View style={styles.container}>
@@ -69,15 +81,56 @@ export default function Dashboard() {
           </View>
         </View>
 
-        <JobTimer />
+        {isWidgetVisible('jobTimer') && (
+          <View style={styles.widgetWrapper}>
+            <JobTimer />
+            {isEditMode && (
+              <Pressable
+                style={styles.widgetDeleteButton}
+                onPress={() => toggleWidgetVisibility('jobTimer')}
+              >
+                <X color="#EF4444" size={18} />
+              </Pressable>
+            )}
+          </View>
+        )}
+
+        {isWidgetVisible('timesheetClock') && (
+          <View style={styles.widgetWrapper}>
+            <TimesheetClock
+              isEditMode={isEditMode}
+              onRemove={() => toggleWidgetVisibility('timesheetClock')}
+            />
+          </View>
+        )}
 
         <View style={styles.row}>
-          <View style={styles.halfWidth}>
-            <WeatherWidget />
-          </View>
-          <View style={styles.halfWidth}>
-            <QuickStats />
-          </View>
+          {isWidgetVisible('weather') && (
+            <View style={[styles.halfWidth, styles.widgetWrapper]}>
+              <WeatherWidget />
+              {isEditMode && (
+                <Pressable
+                  style={styles.widgetDeleteButton}
+                  onPress={() => toggleWidgetVisibility('weather')}
+                >
+                  <X color="#EF4444" size={18} />
+                </Pressable>
+              )}
+            </View>
+          )}
+          {isWidgetVisible('quickStats') && (
+            <View style={[styles.halfWidth, styles.widgetWrapper]}>
+              <QuickStats />
+              {isEditMode && (
+                <Pressable
+                  style={styles.widgetDeleteButton}
+                  onPress={() => toggleWidgetVisibility('quickStats')}
+                >
+                  <X color="#EF4444" size={18} />
+                </Pressable>
+              )}
+            </View>
+          )}
         </View>
 
         {customWidgets.map((widget) => (
@@ -96,10 +149,61 @@ export default function Dashboard() {
           </View>
         ))}
 
-        <QuickActions />
-        <ActiveProjects />
-        <UpcomingDeadlines />
-        <RecentActivity />
+        {isWidgetVisible('quickActions') && (
+          <View style={styles.widgetWrapper}>
+            <QuickActions />
+            {isEditMode && (
+              <Pressable
+                style={styles.widgetDeleteButton}
+                onPress={() => toggleWidgetVisibility('quickActions')}
+              >
+                <X color="#EF4444" size={18} />
+              </Pressable>
+            )}
+          </View>
+        )}
+
+        {isWidgetVisible('activeProjects') && (
+          <View style={styles.widgetWrapper}>
+            <ActiveProjects />
+            {isEditMode && (
+              <Pressable
+                style={styles.widgetDeleteButton}
+                onPress={() => toggleWidgetVisibility('activeProjects')}
+              >
+                <X color="#EF4444" size={18} />
+              </Pressable>
+            )}
+          </View>
+        )}
+
+        {isWidgetVisible('upcomingDeadlines') && (
+          <View style={styles.widgetWrapper}>
+            <UpcomingDeadlines />
+            {isEditMode && (
+              <Pressable
+                style={styles.widgetDeleteButton}
+                onPress={() => toggleWidgetVisibility('upcomingDeadlines')}
+              >
+                <X color="#EF4444" size={18} />
+              </Pressable>
+            )}
+          </View>
+        )}
+
+        {isWidgetVisible('recentActivity') && (
+          <View style={styles.widgetWrapper}>
+            <RecentActivity />
+            {isEditMode && (
+              <Pressable
+                style={styles.widgetDeleteButton}
+                onPress={() => toggleWidgetVisibility('recentActivity')}
+              >
+                <X color="#EF4444" size={18} />
+              </Pressable>
+            )}
+          </View>
+        )}
       </ScrollView>
 
       <Modal
@@ -244,6 +348,18 @@ const styles = StyleSheet.create({
   },
   halfWidth: {
     flex: 1,
+  },
+  widgetWrapper: {
+    position: 'relative',
+  },
+  widgetDeleteButton: {
+    position: 'absolute',
+    top: 8,
+    right: 16,
+    backgroundColor: 'rgba(239, 68, 68, 0.9)',
+    borderRadius: 12,
+    padding: 6,
+    zIndex: 10,
   },
   customWidgetContainer: {
     paddingHorizontal: 8,
