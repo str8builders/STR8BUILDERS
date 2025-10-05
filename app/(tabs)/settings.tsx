@@ -3,8 +3,12 @@ import { View, Text, StyleSheet, ScrollView, Pressable, Modal, TextInput, Alert 
 import { AnimatedBackground } from '@/components/ui/AnimatedBackground';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { User, Building, DollarSign, Bell, Shield, Smartphone, CircleHelp as HelpCircle, Info, ChevronRight, BookOpen, FileText, X, Edit, Check } from 'lucide-react-native';
+import { InvoiceManager } from '@/components/finance/InvoiceManager';
+import { ResourcesLibrary } from '@/components/resources/ResourcesLibrary';
+import { ReportsAnalytics } from '@/components/reports/ReportsAnalytics';
 
-type ModalType = 'profile' | 'company' | 'rate' | 'finance' | 'resources' | 'reports' | 'notifications' | 'privacy' | 'appSettings' | 'help' | null;
+type ModalType = 'profile' | 'company' | 'rate' | 'notifications' | 'privacy' | 'appSettings' | 'help' | null;
+type ScreenType = 'settings' | 'finance' | 'resources' | 'reports';
 
 export default function Settings() {
   const [userInfo, setUserInfo] = useState({
@@ -41,6 +45,7 @@ export default function Settings() {
   });
 
   const [activeModal, setActiveModal] = useState<ModalType>(null);
+  const [activeScreen, setActiveScreen] = useState<ScreenType>('settings');
   const [editForm, setEditForm] = useState({ ...userInfo });
 
   const handleSaveProfile = () => {
@@ -102,19 +107,19 @@ export default function Settings() {
           icon: <DollarSign color="#10B981" size={20} />,
           label: 'Finance & Invoicing',
           value: 'Manage',
-          action: () => openModal('finance')
+          action: () => setActiveScreen('finance')
         },
         {
           icon: <BookOpen color="#3B82F6" size={20} />,
           label: 'Resources Library',
           value: 'Browse',
-          action: () => openModal('resources')
+          action: () => setActiveScreen('resources')
         },
         {
           icon: <FileText color="#06B6D4" size={20} />,
           label: 'Reports & Analytics',
           value: 'View',
-          action: () => openModal('reports')
+          action: () => setActiveScreen('reports')
         },
       ],
     },
@@ -177,6 +182,48 @@ export default function Settings() {
       ],
     },
   ];
+
+  if (activeScreen === 'finance') {
+    return (
+      <View style={styles.container}>
+        <AnimatedBackground />
+        <View style={styles.backButtonContainer}>
+          <Pressable style={styles.backButton} onPress={() => setActiveScreen('settings')}>
+            <Text style={styles.backButtonText}>← Back</Text>
+          </Pressable>
+        </View>
+        <InvoiceManager />
+      </View>
+    );
+  }
+
+  if (activeScreen === 'resources') {
+    return (
+      <View style={styles.container}>
+        <AnimatedBackground />
+        <View style={styles.backButtonContainer}>
+          <Pressable style={styles.backButton} onPress={() => setActiveScreen('settings')}>
+            <Text style={styles.backButtonText}>← Back</Text>
+          </Pressable>
+        </View>
+        <ResourcesLibrary />
+      </View>
+    );
+  }
+
+  if (activeScreen === 'reports') {
+    return (
+      <View style={styles.container}>
+        <AnimatedBackground />
+        <View style={styles.backButtonContainer}>
+          <Pressable style={styles.backButton} onPress={() => setActiveScreen('settings')}>
+            <Text style={styles.backButtonText}>← Back</Text>
+          </Pressable>
+        </View>
+        <ReportsAnalytics />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -478,180 +525,6 @@ export default function Settings() {
                 onPress={handleSaveRate}
               >
                 <Text style={styles.saveButtonText}>Save Rate</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Finance & Invoicing Modal */}
-      <Modal
-        visible={activeModal === 'finance'}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setActiveModal(null)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Finance & Invoicing</Text>
-              <Pressable onPress={() => setActiveModal(null)}>
-                <X color="#94A3B8" size={24} />
-              </Pressable>
-            </View>
-
-            <ScrollView style={styles.formContainer}>
-              <View style={styles.featureSection}>
-                <DollarSign color="#10B981" size={40} />
-                <Text style={styles.featureTitle}>Invoice Management</Text>
-                <Text style={styles.featureDescription}>
-                  Create, send, and track invoices for your projects. Manage payments and financial records all in one place.
-                </Text>
-                <Text style={styles.featureComingSoon}>Coming Soon</Text>
-              </View>
-
-              <View style={styles.featureList}>
-                <View style={styles.featureItem}>
-                  <Check color="#10B981" size={20} />
-                  <Text style={styles.featureItemText}>Create professional invoices</Text>
-                </View>
-                <View style={styles.featureItem}>
-                  <Check color="#10B981" size={20} />
-                  <Text style={styles.featureItemText}>Track payments and overdue invoices</Text>
-                </View>
-                <View style={styles.featureItem}>
-                  <Check color="#10B981" size={20} />
-                  <Text style={styles.featureItemText}>Generate financial reports</Text>
-                </View>
-                <View style={styles.featureItem}>
-                  <Check color="#10B981" size={20} />
-                  <Text style={styles.featureItemText}>Export to PDF and email</Text>
-                </View>
-              </View>
-            </ScrollView>
-
-            <View style={styles.modalActions}>
-              <Pressable
-                style={[styles.modalButton, styles.saveButton, { flex: 1 }]}
-                onPress={() => setActiveModal(null)}
-              >
-                <Text style={styles.saveButtonText}>Close</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Resources Library Modal */}
-      <Modal
-        visible={activeModal === 'resources'}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setActiveModal(null)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Resources Library</Text>
-              <Pressable onPress={() => setActiveModal(null)}>
-                <X color="#94A3B8" size={24} />
-              </Pressable>
-            </View>
-
-            <ScrollView style={styles.formContainer}>
-              <View style={styles.featureSection}>
-                <BookOpen color="#3B82F6" size={40} />
-                <Text style={styles.featureTitle}>Knowledge Base</Text>
-                <Text style={styles.featureDescription}>
-                  Access construction guides, building codes, safety procedures, and best practices for New Zealand construction.
-                </Text>
-                <Text style={styles.featureComingSoon}>Coming Soon</Text>
-              </View>
-
-              <View style={styles.featureList}>
-                <View style={styles.featureItem}>
-                  <Check color="#3B82F6" size={20} />
-                  <Text style={styles.featureItemText}>Building codes and regulations</Text>
-                </View>
-                <View style={styles.featureItem}>
-                  <Check color="#3B82F6" size={20} />
-                  <Text style={styles.featureItemText}>Safety guidelines and checklists</Text>
-                </View>
-                <View style={styles.featureItem}>
-                  <Check color="#3B82F6" size={20} />
-                  <Text style={styles.featureItemText}>Construction templates</Text>
-                </View>
-                <View style={styles.featureItem}>
-                  <Check color="#3B82F6" size={20} />
-                  <Text style={styles.featureItemText}>Video tutorials</Text>
-                </View>
-              </View>
-            </ScrollView>
-
-            <View style={styles.modalActions}>
-              <Pressable
-                style={[styles.modalButton, styles.saveButton, { flex: 1 }]}
-                onPress={() => setActiveModal(null)}
-              >
-                <Text style={styles.saveButtonText}>Close</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Reports & Analytics Modal */}
-      <Modal
-        visible={activeModal === 'reports'}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setActiveModal(null)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Reports & Analytics</Text>
-              <Pressable onPress={() => setActiveModal(null)}>
-                <X color="#94A3B8" size={24} />
-              </Pressable>
-            </View>
-
-            <ScrollView style={styles.formContainer}>
-              <View style={styles.featureSection}>
-                <FileText color="#06B6D4" size={40} />
-                <Text style={styles.featureTitle}>Business Intelligence</Text>
-                <Text style={styles.featureDescription}>
-                  View detailed analytics on your projects, time tracking, revenue, and business performance metrics.
-                </Text>
-                <Text style={styles.featureComingSoon}>Coming Soon</Text>
-              </View>
-
-              <View style={styles.featureList}>
-                <View style={styles.featureItem}>
-                  <Check color="#06B6D4" size={20} />
-                  <Text style={styles.featureItemText}>Project profitability reports</Text>
-                </View>
-                <View style={styles.featureItem}>
-                  <Check color="#06B6D4" size={20} />
-                  <Text style={styles.featureItemText}>Time tracking analytics</Text>
-                </View>
-                <View style={styles.featureItem}>
-                  <Check color="#06B6D4" size={20} />
-                  <Text style={styles.featureItemText}>Client revenue breakdown</Text>
-                </View>
-                <View style={styles.featureItem}>
-                  <Check color="#06B6D4" size={20} />
-                  <Text style={styles.featureItemText}>Export to Excel/PDF</Text>
-                </View>
-              </View>
-            </ScrollView>
-
-            <View style={styles.modalActions}>
-              <Pressable
-                style={[styles.modalButton, styles.saveButton, { flex: 1 }]}
-                onPress={() => setActiveModal(null)}
-              >
-                <Text style={styles.saveButtonText}>Close</Text>
               </Pressable>
             </View>
           </View>
@@ -1635,5 +1508,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Inter-SemiBold',
     color: '#FFF',
+  },
+  backButtonContainer: {
+    paddingTop: 60,
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+  },
+  backButton: {
+    alignSelf: 'flex-start',
+  },
+  backButtonText: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#3B82F6',
   },
 });
