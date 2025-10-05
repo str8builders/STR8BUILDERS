@@ -256,7 +256,7 @@ export function PhotoDocumentation() {
             ))}
           </View>
         )}
-      </ScrollView>
+      </View>
 
       <Modal
         visible={selectedPhoto !== null}
