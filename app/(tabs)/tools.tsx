@@ -892,84 +892,104 @@ export default function Tools() {
           <Text style={styles.title}>Tools</Text>
         </View>
         
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.tabBar}
-          contentContainerStyle={styles.tabBarContent}
-        >
-          <Pressable
-            style={[styles.tab, activeTab === 'weather' && styles.activeTab]}
-            onPress={() => setActiveTab('weather')}
+        <View style={styles.tabBarContainer}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.tabBar}
+            contentContainerStyle={styles.tabBarContent}
           >
-            <CloudRain color={activeTab === 'weather' ? '#FFF' : '#94A3B8'} size={18} />
-            <Text style={[styles.tabText, activeTab === 'weather' && styles.activeTabText]}>Weather</Text>
-          </Pressable>
+            <Pressable
+              style={[styles.tab, activeTab === 'weather' && styles.activeTab]}
+              onPress={() => setActiveTab('weather')}
+            >
+              <View style={styles.tabIcon}>
+                <CloudRain color={activeTab === 'weather' ? '#FFF' : '#94A3B8'} size={20} />
+              </View>
+              <Text style={[styles.tabText, activeTab === 'weather' && styles.activeTabText]}>Weather</Text>
+            </Pressable>
 
-          <Pressable
-            style={[styles.tab, activeTab === 'timer' && styles.activeTab]}
-            onPress={() => setActiveTab('timer')}
-          >
-            <Clock color={activeTab === 'timer' ? '#FFF' : '#94A3B8'} size={18} />
-            <Text style={[styles.tabText, activeTab === 'timer' && styles.activeTabText]}>Timer</Text>
-          </Pressable>
+            <Pressable
+              style={[styles.tab, activeTab === 'timer' && styles.activeTab]}
+              onPress={() => setActiveTab('timer')}
+            >
+              <View style={styles.tabIcon}>
+                <Clock color={activeTab === 'timer' ? '#FFF' : '#94A3B8'} size={20} />
+              </View>
+              <Text style={[styles.tabText, activeTab === 'timer' && styles.activeTabText]}>Timer</Text>
+            </Pressable>
 
-          <Pressable
-            style={[styles.tab, activeTab === 'voice' && styles.activeTab]}
-            onPress={() => setActiveTab('voice')}
-          >
-            <Mic color={activeTab === 'voice' ? '#FFF' : '#94A3B8'} size={18} />
-            <Text style={[styles.tabText, activeTab === 'voice' && styles.activeTabText]}>Voice</Text>
-          </Pressable>
+            <Pressable
+              style={[styles.tab, activeTab === 'voice' && styles.activeTab]}
+              onPress={() => setActiveTab('voice')}
+            >
+              <View style={styles.tabIcon}>
+                <Mic color={activeTab === 'voice' ? '#FFF' : '#94A3B8'} size={20} />
+              </View>
+              <Text style={[styles.tabText, activeTab === 'voice' && styles.activeTabText]}>Voice</Text>
+            </Pressable>
 
-          <Pressable
-            style={[styles.tab, activeTab === 'photos' && styles.activeTab]}
-            onPress={() => setActiveTab('photos')}
-          >
-            <Camera color={activeTab === 'photos' ? '#FFF' : '#94A3B8'} size={18} />
-            <Text style={[styles.tabText, activeTab === 'photos' && styles.activeTabText]}>Photos</Text>
-          </Pressable>
+            <Pressable
+              style={[styles.tab, activeTab === 'photos' && styles.activeTab]}
+              onPress={() => setActiveTab('photos')}
+            >
+              <View style={styles.tabIcon}>
+                <Camera color={activeTab === 'photos' ? '#FFF' : '#94A3B8'} size={20} />
+              </View>
+              <Text style={[styles.tabText, activeTab === 'photos' && styles.activeTabText]}>Photos</Text>
+            </Pressable>
 
-          <Pressable
-            style={[styles.tab, activeTab === 'expenses' && styles.activeTab]}
-            onPress={() => setActiveTab('expenses')}
-          >
-            <DollarSign color={activeTab === 'expenses' ? '#FFF' : '#94A3B8'} size={18} />
-            <Text style={[styles.tabText, activeTab === 'expenses' && styles.activeTabText]}>Expenses</Text>
-          </Pressable>
+            <Pressable
+              style={[styles.tab, activeTab === 'expenses' && styles.activeTab]}
+              onPress={() => setActiveTab('expenses')}
+            >
+              <View style={styles.tabIcon}>
+                <DollarSign color={activeTab === 'expenses' ? '#FFF' : '#94A3B8'} size={20} />
+              </View>
+              <Text style={[styles.tabText, activeTab === 'expenses' && styles.activeTabText]}>Expenses</Text>
+            </Pressable>
 
-          <Pressable
-            style={[styles.tab, activeTab === 'cashflow' && styles.activeTab]}
-            onPress={() => setActiveTab('cashflow')}
-          >
-            <TrendingUp color={activeTab === 'cashflow' ? '#FFF' : '#94A3B8'} size={18} />
-            <Text style={[styles.tabText, activeTab === 'cashflow' && styles.activeTabText]}>Cash Flow</Text>
-          </Pressable>
+            <Pressable
+              style={[styles.tab, activeTab === 'cashflow' && styles.activeTab]}
+              onPress={() => setActiveTab('cashflow')}
+            >
+              <View style={styles.tabIcon}>
+                <TrendingUp color={activeTab === 'cashflow' ? '#FFF' : '#94A3B8'} size={20} />
+              </View>
+              <Text style={[styles.tabText, activeTab === 'cashflow' && styles.activeTabText]}>Cash Flow</Text>
+            </Pressable>
 
-          <Pressable
-            style={[styles.tab, activeTab === 'achievements' && styles.activeTab]}
-            onPress={() => setActiveTab('achievements')}
-          >
-            <Trophy color={activeTab === 'achievements' ? '#FFF' : '#94A3B8'} size={18} />
-            <Text style={[styles.tabText, activeTab === 'achievements' && styles.activeTabText]}>Achievements</Text>
-          </Pressable>
+            <Pressable
+              style={[styles.tab, activeTab === 'achievements' && styles.activeTab]}
+              onPress={() => setActiveTab('achievements')}
+            >
+              <View style={styles.tabIcon}>
+                <Trophy color={activeTab === 'achievements' ? '#FFF' : '#94A3B8'} size={20} />
+              </View>
+              <Text style={[styles.tabText, activeTab === 'achievements' && styles.activeTabText]}>Achievements</Text>
+            </Pressable>
 
-          <Pressable
-            style={[styles.tab, activeTab === 'clients' && styles.activeTab]}
-            onPress={() => setActiveTab('clients')}
-          >
-            <Users color={activeTab === 'clients' ? '#FFF' : '#94A3B8'} size={18} />
-            <Text style={[styles.tabText, activeTab === 'clients' && styles.activeTabText]}>Clients</Text>
-          </Pressable>
+            <Pressable
+              style={[styles.tab, activeTab === 'clients' && styles.activeTab]}
+              onPress={() => setActiveTab('clients')}
+            >
+              <View style={styles.tabIcon}>
+                <Users color={activeTab === 'clients' ? '#FFF' : '#94A3B8'} size={20} />
+              </View>
+              <Text style={[styles.tabText, activeTab === 'clients' && styles.activeTabText]}>Clients</Text>
+            </Pressable>
 
-          <Pressable
-            style={[styles.tab, activeTab === 'calculator' && styles.activeTab]}
-            onPress={() => setActiveTab('calculator')}
-          >
-            <Calculator color={activeTab === 'calculator' ? '#FFF' : '#94A3B8'} size={18} />
-            <Text style={[styles.tabText, activeTab === 'calculator' && styles.activeTabText]}>Calculator</Text>
-          </Pressable>
-        </ScrollView>
+            <Pressable
+              style={[styles.tab, activeTab === 'calculator' && styles.activeTab]}
+              onPress={() => setActiveTab('calculator')}
+            >
+              <View style={styles.tabIcon}>
+                <Calculator color={activeTab === 'calculator' ? '#FFF' : '#94A3B8'} size={20} />
+              </View>
+              <Text style={[styles.tabText, activeTab === 'calculator' && styles.activeTabText]}>Calculator</Text>
+            </Pressable>
+          </ScrollView>
+        </View>
 
         <View style={styles.tabContent}>
           {activeTab === 'weather' && <TradeWeatherImpact />}
@@ -998,7 +1018,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 20,
     paddingHorizontal: 16,
   },
   title: {
@@ -1006,36 +1026,53 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Bold',
     color: '#FFF',
   },
-  tabBar: {
-    maxHeight: 60,
-    marginHorizontal: 16,
+  tabBarContainer: {
     marginBottom: 16,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  tabBar: {
+    maxHeight: 80,
   },
   tabBarContent: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 16,
-    padding: 4,
-    gap: 6,
+    paddingHorizontal: 16,
+    gap: 8,
   },
   tab: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 12,
-    gap: 6,
-    minWidth: 90,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    minWidth: 85,
+    gap: 8,
   },
   activeTab: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+    borderColor: '#3B82F6',
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  tabIcon: {
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tabText: {
-    fontSize: 13,
+    fontSize: 11,
     fontFamily: 'Inter-SemiBold',
     color: '#94A3B8',
     whiteSpace: 'nowrap',
+    textAlign: 'center',
   },
   activeTabText: {
     color: '#FFF',
