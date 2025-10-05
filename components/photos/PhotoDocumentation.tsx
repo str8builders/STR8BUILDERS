@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, Image, Modal, Alert, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Image, Modal, Alert } from 'react-native';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Camera, Image as ImageIcon, Grid, Calendar, Share2, Download, X, ArrowLeftRight } from 'lucide-react-native';
-import * as ImagePicker from 'expo-image-picker';
 
 interface Photo {
   id: string;
@@ -82,48 +81,12 @@ export function PhotoDocumentation() {
     ? photos
     : photos.filter(p => p.project === selectedProject);
 
-  const openCamera = async () => {
-    if (Platform.OS === 'web') {
-      Alert.alert(
-        'Camera Not Available',
-        'Camera access is not available on web. This feature works on iOS and Android devices.',
-        [{ text: 'OK' }]
-      );
-      return;
-    }
-
-    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
-
-    if (!permissionResult.granted) {
-      Alert.alert(
-        'Permission Required',
-        'Camera permission is required to take photos.',
-        [{ text: 'OK' }]
-      );
-      return;
-    }
-
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.8,
-    });
-
-    if (!result.canceled && result.assets[0]) {
-      const newPhoto: Photo = {
-        id: Date.now().toString(),
-        url: result.assets[0].uri,
-        project: selectedProject === 'all' ? 'New Project' : selectedProject,
-        type: 'progress',
-        caption: 'New photo',
-        date: new Date(),
-        tags: ['new'],
-      };
-
-      setPhotos([newPhoto, ...photos]);
-      Alert.alert('Success', 'Photo added successfully!');
-    }
+  const openCamera = () => {
+    Alert.alert(
+      'Camera Coming Soon',
+      'Camera functionality will be available when you run this app on a mobile device. For now, you can view existing photos.',
+      [{ text: 'OK' }]
+    );
   };
 
   const getTypeColor = (type: string) => {
