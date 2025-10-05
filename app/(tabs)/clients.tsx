@@ -1729,7 +1729,7 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 13,
     fontFamily: 'Inter-Bold',
-    color: '#94A3B8',
+    color: '#CBD5E1',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginBottom: 16,
@@ -1737,6 +1737,30 @@ const styles = StyleSheet.create({
   required: {
     color: '#EF4444',
     fontSize: 14,
+  },
+  formGroup: {
+    marginBottom: 16,
+  },
+  formLabel: {
+    fontSize: 14,
+    fontFamily: 'Inter-SemiBold',
+    color: '#E2E8F0',
+    marginBottom: 8,
+  },
+  formInput: {
+    backgroundColor: 'rgba(30, 41, 59, 0.5)',
+    borderWidth: 1,
+    borderColor: 'rgba(148, 163, 184, 0.3)',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    fontSize: 15,
+    fontFamily: 'Inter-Regular',
+    color: '#FFF',
+  },
+  formRow: {
+    flexDirection: 'row',
+    gap: 12,
   },
   pickerContainer: {
     width: '100%',
@@ -1801,5 +1825,29 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-SemiBold',
     color: '#FFF',
     marginLeft: 8,
+  },
+  modalBody: {
+    maxHeight: '70%',
+  },
+  modalFooter: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 20,
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(148, 163, 184, 0.2)',
+  },
+  primaryButton: {
+    backgroundColor: '#3B82F6',
+  },
+  primaryButtonText: {
+    fontSize: 15,
+    fontFamily: 'Inter-Bold',
+    color: '#FFF',
+  },
+  cancelButtonText: {
+    fontSize: 15,
+    fontFamily: 'Inter-SemiBold',
+    color: '#94A3B8',
   },
 });
