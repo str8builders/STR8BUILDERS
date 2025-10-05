@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, Alert } from 'react-native';
 import { AnimatedBackground } from '@/components/ui/AnimatedBackground';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { Calculator, Ruler, DollarSign, Percent, Users, FileText, Plus, Minus, X, Divide, Equal, Mail, Phone, MapPin, Eye, Send, Download, Trash2, Check, Mic, Camera, Clock, Trophy, TrendingUp } from 'lucide-react-native';
+import { Calculator, Ruler, DollarSign, Percent, Users, FileText, Plus, Minus, X, Divide, Equal, Mail, Phone, MapPin, Eye, Send, Download, Trash2, Check, Mic, Camera, Clock, Trophy, TrendingUp, CloudRain } from 'lucide-react-native';
 import { useAppData } from '@/hooks/useAppData';
 import { generateInvoicePDF, shareViaPDF, sendViaEmail } from '@/utils/pdfGenerator';
 import { VoiceRecorder } from '@/components/voice/VoiceRecorder';
@@ -11,6 +11,7 @@ import { ExpenseTracker } from '@/components/expenses/ExpenseTracker';
 import { QuickWinTimer } from '@/components/timer/QuickWinTimer';
 import { AchievementSystem } from '@/components/gamification/AchievementSystem';
 import { CashFlowPredictor } from '@/components/cashflow/CashFlowPredictor';
+import { TradeWeatherImpact } from '@/components/weather/TradeWeatherImpact';
 
 export default function Tools() {
   const {
@@ -26,7 +27,7 @@ export default function Tools() {
     deleteInvoice,
   } = useAppData();
 
-  const [activeTab, setActiveTab] = useState<'clients' | 'calculator' | 'converter' | 'voice' | 'photos' | 'expenses' | 'timer' | 'achievements' | 'cashflow'>('clients');
+  const [activeTab, setActiveTab] = useState<'clients' | 'calculator' | 'converter' | 'voice' | 'photos' | 'expenses' | 'timer' | 'achievements' | 'cashflow' | 'weather'>('weather');
   const [selectedClient, setSelectedClient] = useState<any>(null);
   const [showAddClientModal, setShowAddClientModal] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
@@ -898,6 +899,14 @@ export default function Tools() {
           contentContainerStyle={styles.tabBarContent}
         >
           <Pressable
+            style={[styles.tab, activeTab === 'weather' && styles.activeTab]}
+            onPress={() => setActiveTab('weather')}
+          >
+            <CloudRain color={activeTab === 'weather' ? '#FFF' : '#94A3B8'} size={18} />
+            <Text style={[styles.tabText, activeTab === 'weather' && styles.activeTabText]}>Weather</Text>
+          </Pressable>
+
+          <Pressable
             style={[styles.tab, activeTab === 'timer' && styles.activeTab]}
             onPress={() => setActiveTab('timer')}
           >
@@ -963,6 +972,7 @@ export default function Tools() {
         </ScrollView>
 
         <View style={styles.tabContent}>
+          {activeTab === 'weather' && <TradeWeatherImpact />}
           {activeTab === 'timer' && <QuickWinTimer />}
           {activeTab === 'voice' && <VoiceRecorder />}
           {activeTab === 'photos' && <PhotoDocumentation />}
