@@ -4,7 +4,7 @@ import { AnimatedBackground } from '@/components/ui/AnimatedBackground';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { User, Building, DollarSign, Bell, Shield, Smartphone, CircleHelp as HelpCircle, Info, ChevronRight, BookOpen, FileText, X, Edit, Check } from 'lucide-react-native';
 
-type ModalType = 'profile' | 'company' | 'rate' | 'finance' | 'resources' | 'reports' | null;
+type ModalType = 'profile' | 'company' | 'rate' | 'finance' | 'resources' | 'reports' | 'notifications' | 'privacy' | 'appSettings' | 'help' | null;
 
 export default function Settings() {
   const [userInfo, setUserInfo] = useState({
@@ -17,6 +17,27 @@ export default function Settings() {
     abn: '123-456-789',
     address: '123 Construction St, Tauranga',
     bankAccount: 'ANZ 12-3456-7890123-00',
+  });
+
+  const [appPreferences, setAppPreferences] = useState({
+    notifications: {
+      enabled: true,
+      projectUpdates: true,
+      clientMessages: true,
+      deadlineReminders: true,
+      weeklyReports: false,
+    },
+    privacy: {
+      dataSharing: false,
+      analytics: true,
+      crashReports: true,
+    },
+    app: {
+      theme: 'dark',
+      language: 'English',
+      currency: 'NZD',
+      dateFormat: 'DD/MM/YYYY',
+    },
   });
 
   const [activeModal, setActiveModal] = useState<ModalType>(null);
@@ -126,26 +147,26 @@ export default function Settings() {
         {
           icon: <Bell color="#F59E0B" size={20} />,
           label: 'Notifications',
-          value: 'Enabled',
-          action: () => Alert.alert('Notifications', 'Notification settings coming soon!')
+          value: appPreferences.notifications.enabled ? 'Enabled' : 'Disabled',
+          action: () => openModal('notifications')
         },
         {
           icon: <Shield color="#EF4444" size={20} />,
           label: 'Privacy & Security',
           value: 'Secure',
-          action: () => Alert.alert('Privacy & Security', 'Security settings coming soon!')
+          action: () => openModal('privacy')
         },
         {
           icon: <Smartphone color="#8B5CF6" size={20} />,
           label: 'App Settings',
           value: 'Configured',
-          action: () => Alert.alert('App Settings', 'General app settings coming soon!')
+          action: () => openModal('appSettings')
         },
         {
           icon: <HelpCircle color="#10B981" size={20} />,
           label: 'Help & Support',
           value: 'Get Help',
-          action: () => Alert.alert('Help & Support', 'Visit our support page for assistance or email support@str8build.co.nz')
+          action: () => openModal('help')
         },
         {
           icon: <Info color="#94A3B8" size={20} />,
@@ -636,6 +657,498 @@ export default function Settings() {
           </View>
         </View>
       </Modal>
+
+      {/* Notifications Modal */}
+      <Modal
+        visible={activeModal === 'notifications'}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setActiveModal(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Notification Settings</Text>
+              <Pressable onPress={() => setActiveModal(null)}>
+                <X color="#94A3B8" size={24} />
+              </Pressable>
+            </View>
+
+            <ScrollView style={styles.formContainer}>
+              <View style={styles.settingItem}>
+                <View style={styles.settingInfo}>
+                  <Text style={styles.settingLabel}>Enable Notifications</Text>
+                  <Text style={styles.settingDescription}>
+                    Receive push notifications for important updates
+                  </Text>
+                </View>
+                <Pressable
+                  style={[
+                    styles.toggle,
+                    appPreferences.notifications.enabled && styles.toggleActive
+                  ]}
+                  onPress={() => setAppPreferences(prev => ({
+                    ...prev,
+                    notifications: { ...prev.notifications, enabled: !prev.notifications.enabled }
+                  }))}
+                >
+                  <View style={[
+                    styles.toggleThumb,
+                    appPreferences.notifications.enabled && styles.toggleThumbActive
+                  ]} />
+                </Pressable>
+              </View>
+
+              <View style={styles.separator} />
+
+              <View style={styles.settingItem}>
+                <View style={styles.settingInfo}>
+                  <Text style={styles.settingLabel}>Project Updates</Text>
+                  <Text style={styles.settingDescription}>
+                    Notifications when project status changes
+                  </Text>
+                </View>
+                <Pressable
+                  style={[
+                    styles.toggle,
+                    appPreferences.notifications.projectUpdates && styles.toggleActive
+                  ]}
+                  onPress={() => setAppPreferences(prev => ({
+                    ...prev,
+                    notifications: { ...prev.notifications, projectUpdates: !prev.notifications.projectUpdates }
+                  }))}
+                >
+                  <View style={[
+                    styles.toggleThumb,
+                    appPreferences.notifications.projectUpdates && styles.toggleThumbActive
+                  ]} />
+                </Pressable>
+              </View>
+
+              <View style={styles.separator} />
+
+              <View style={styles.settingItem}>
+                <View style={styles.settingInfo}>
+                  <Text style={styles.settingLabel}>Client Messages</Text>
+                  <Text style={styles.settingDescription}>
+                    Notifications for new client communications
+                  </Text>
+                </View>
+                <Pressable
+                  style={[
+                    styles.toggle,
+                    appPreferences.notifications.clientMessages && styles.toggleActive
+                  ]}
+                  onPress={() => setAppPreferences(prev => ({
+                    ...prev,
+                    notifications: { ...prev.notifications, clientMessages: !prev.notifications.clientMessages }
+                  }))}
+                >
+                  <View style={[
+                    styles.toggleThumb,
+                    appPreferences.notifications.clientMessages && styles.toggleThumbActive
+                  ]} />
+                </Pressable>
+              </View>
+
+              <View style={styles.separator} />
+
+              <View style={styles.settingItem}>
+                <View style={styles.settingInfo}>
+                  <Text style={styles.settingLabel}>Deadline Reminders</Text>
+                  <Text style={styles.settingDescription}>
+                    Reminders for upcoming project deadlines
+                  </Text>
+                </View>
+                <Pressable
+                  style={[
+                    styles.toggle,
+                    appPreferences.notifications.deadlineReminders && styles.toggleActive
+                  ]}
+                  onPress={() => setAppPreferences(prev => ({
+                    ...prev,
+                    notifications: { ...prev.notifications, deadlineReminders: !prev.notifications.deadlineReminders }
+                  }))}
+                >
+                  <View style={[
+                    styles.toggleThumb,
+                    appPreferences.notifications.deadlineReminders && styles.toggleThumbActive
+                  ]} />
+                </Pressable>
+              </View>
+
+              <View style={styles.separator} />
+
+              <View style={styles.settingItem}>
+                <View style={styles.settingInfo}>
+                  <Text style={styles.settingLabel}>Weekly Reports</Text>
+                  <Text style={styles.settingDescription}>
+                    Receive weekly summary of your activity
+                  </Text>
+                </View>
+                <Pressable
+                  style={[
+                    styles.toggle,
+                    appPreferences.notifications.weeklyReports && styles.toggleActive
+                  ]}
+                  onPress={() => setAppPreferences(prev => ({
+                    ...prev,
+                    notifications: { ...prev.notifications, weeklyReports: !prev.notifications.weeklyReports }
+                  }))}
+                >
+                  <View style={[
+                    styles.toggleThumb,
+                    appPreferences.notifications.weeklyReports && styles.toggleThumbActive
+                  ]} />
+                </Pressable>
+              </View>
+            </ScrollView>
+
+            <View style={styles.modalActions}>
+              <Pressable
+                style={[styles.modalButton, styles.saveButton, { flex: 1 }]}
+                onPress={() => {
+                  setActiveModal(null);
+                  Alert.alert('Success', 'Notification preferences saved!');
+                }}
+              >
+                <Text style={styles.saveButtonText}>Save Preferences</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Privacy & Security Modal */}
+      <Modal
+        visible={activeModal === 'privacy'}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setActiveModal(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Privacy & Security</Text>
+              <Pressable onPress={() => setActiveModal(null)}>
+                <X color="#94A3B8" size={24} />
+              </Pressable>
+            </View>
+
+            <ScrollView style={styles.formContainer}>
+              <View style={styles.settingItem}>
+                <View style={styles.settingInfo}>
+                  <Text style={styles.settingLabel}>Data Sharing</Text>
+                  <Text style={styles.settingDescription}>
+                    Share anonymized usage data to improve the app
+                  </Text>
+                </View>
+                <Pressable
+                  style={[
+                    styles.toggle,
+                    appPreferences.privacy.dataSharing && styles.toggleActive
+                  ]}
+                  onPress={() => setAppPreferences(prev => ({
+                    ...prev,
+                    privacy: { ...prev.privacy, dataSharing: !prev.privacy.dataSharing }
+                  }))}
+                >
+                  <View style={[
+                    styles.toggleThumb,
+                    appPreferences.privacy.dataSharing && styles.toggleThumbActive
+                  ]} />
+                </Pressable>
+              </View>
+
+              <View style={styles.separator} />
+
+              <View style={styles.settingItem}>
+                <View style={styles.settingInfo}>
+                  <Text style={styles.settingLabel}>Analytics</Text>
+                  <Text style={styles.settingDescription}>
+                    Allow collection of app usage analytics
+                  </Text>
+                </View>
+                <Pressable
+                  style={[
+                    styles.toggle,
+                    appPreferences.privacy.analytics && styles.toggleActive
+                  ]}
+                  onPress={() => setAppPreferences(prev => ({
+                    ...prev,
+                    privacy: { ...prev.privacy, analytics: !prev.privacy.analytics }
+                  }))}
+                >
+                  <View style={[
+                    styles.toggleThumb,
+                    appPreferences.privacy.analytics && styles.toggleThumbActive
+                  ]} />
+                </Pressable>
+              </View>
+
+              <View style={styles.separator} />
+
+              <View style={styles.settingItem}>
+                <View style={styles.settingInfo}>
+                  <Text style={styles.settingLabel}>Crash Reports</Text>
+                  <Text style={styles.settingDescription}>
+                    Send crash reports to help fix issues
+                  </Text>
+                </View>
+                <Pressable
+                  style={[
+                    styles.toggle,
+                    appPreferences.privacy.crashReports && styles.toggleActive
+                  ]}
+                  onPress={() => setAppPreferences(prev => ({
+                    ...prev,
+                    privacy: { ...prev.privacy, crashReports: !prev.privacy.crashReports }
+                  }))}
+                >
+                  <View style={[
+                    styles.toggleThumb,
+                    appPreferences.privacy.crashReports && styles.toggleThumbActive
+                  ]} />
+                </Pressable>
+              </View>
+
+              <View style={styles.infoBox}>
+                <Shield color="#EF4444" size={24} />
+                <Text style={styles.infoBoxText}>
+                  Your privacy is important. All personal data is encrypted and stored securely. We never share your information with third parties without consent.
+                </Text>
+              </View>
+            </ScrollView>
+
+            <View style={styles.modalActions}>
+              <Pressable
+                style={[styles.modalButton, styles.saveButton, { flex: 1 }]}
+                onPress={() => {
+                  setActiveModal(null);
+                  Alert.alert('Success', 'Privacy settings saved!');
+                }}
+              >
+                <Text style={styles.saveButtonText}>Save Settings</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* App Settings Modal */}
+      <Modal
+        visible={activeModal === 'appSettings'}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setActiveModal(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>App Settings</Text>
+              <Pressable onPress={() => setActiveModal(null)}>
+                <X color="#94A3B8" size={24} />
+              </Pressable>
+            </View>
+
+            <ScrollView style={styles.formContainer}>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Theme</Text>
+                <View style={styles.optionGroup}>
+                  {['Light', 'Dark', 'Auto'].map((theme) => (
+                    <Pressable
+                      key={theme}
+                      style={[
+                        styles.optionButton,
+                        appPreferences.app.theme.toLowerCase() === theme.toLowerCase() && styles.optionButtonActive
+                      ]}
+                      onPress={() => setAppPreferences(prev => ({
+                        ...prev,
+                        app: { ...prev.app, theme: theme.toLowerCase() }
+                      }))}
+                    >
+                      <Text style={[
+                        styles.optionButtonText,
+                        appPreferences.app.theme.toLowerCase() === theme.toLowerCase() && styles.optionButtonTextActive
+                      ]}>
+                        {theme}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Language</Text>
+                <View style={styles.optionGroup}>
+                  {['English', 'Māori'].map((lang) => (
+                    <Pressable
+                      key={lang}
+                      style={[
+                        styles.optionButton,
+                        appPreferences.app.language === lang && styles.optionButtonActive
+                      ]}
+                      onPress={() => setAppPreferences(prev => ({
+                        ...prev,
+                        app: { ...prev.app, language: lang }
+                      }))}
+                    >
+                      <Text style={[
+                        styles.optionButtonText,
+                        appPreferences.app.language === lang && styles.optionButtonTextActive
+                      ]}>
+                        {lang}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Currency</Text>
+                <View style={styles.optionGroup}>
+                  {['NZD', 'AUD', 'USD'].map((curr) => (
+                    <Pressable
+                      key={curr}
+                      style={[
+                        styles.optionButton,
+                        appPreferences.app.currency === curr && styles.optionButtonActive
+                      ]}
+                      onPress={() => setAppPreferences(prev => ({
+                        ...prev,
+                        app: { ...prev.app, currency: curr }
+                      }))}
+                    >
+                      <Text style={[
+                        styles.optionButtonText,
+                        appPreferences.app.currency === curr && styles.optionButtonTextActive
+                      ]}>
+                        {curr}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Date Format</Text>
+                <View style={styles.optionGroup}>
+                  {['DD/MM/YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD'].map((format) => (
+                    <Pressable
+                      key={format}
+                      style={[
+                        styles.optionButton,
+                        appPreferences.app.dateFormat === format && styles.optionButtonActive
+                      ]}
+                      onPress={() => setAppPreferences(prev => ({
+                        ...prev,
+                        app: { ...prev.app, dateFormat: format }
+                      }))}
+                    >
+                      <Text style={[
+                        styles.optionButtonText,
+                        appPreferences.app.dateFormat === format && styles.optionButtonTextActive
+                      ]}>
+                        {format}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            </ScrollView>
+
+            <View style={styles.modalActions}>
+              <Pressable
+                style={[styles.modalButton, styles.saveButton, { flex: 1 }]}
+                onPress={() => {
+                  setActiveModal(null);
+                  Alert.alert('Success', 'App settings saved!');
+                }}
+              >
+                <Text style={styles.saveButtonText}>Save Settings</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Help & Support Modal */}
+      <Modal
+        visible={activeModal === 'help'}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setActiveModal(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Help & Support</Text>
+              <Pressable onPress={() => setActiveModal(null)}>
+                <X color="#94A3B8" size={24} />
+              </Pressable>
+            </View>
+
+            <ScrollView style={styles.formContainer}>
+              <View style={styles.helpSection}>
+                <HelpCircle color="#10B981" size={40} />
+                <Text style={styles.helpTitle}>We're Here to Help</Text>
+                <Text style={styles.helpDescription}>
+                  Get assistance with STR8 BUILD, report issues, or provide feedback.
+                </Text>
+              </View>
+
+              <Pressable style={styles.helpCard}>
+                <View style={styles.helpCardIcon}>
+                  <BookOpen color="#3B82F6" size={24} />
+                </View>
+                <View style={styles.helpCardContent}>
+                  <Text style={styles.helpCardTitle}>Documentation</Text>
+                  <Text style={styles.helpCardDescription}>
+                    Browse our comprehensive user guides and tutorials
+                  </Text>
+                </View>
+                <ChevronRight color="#94A3B8" size={20} />
+              </Pressable>
+
+              <Pressable style={styles.helpCard}>
+                <View style={styles.helpCardIcon}>
+                  <FileText color="#10B981" size={24} />
+                </View>
+                <View style={styles.helpCardContent}>
+                  <Text style={styles.helpCardTitle}>FAQs</Text>
+                  <Text style={styles.helpCardDescription}>
+                    Find answers to commonly asked questions
+                  </Text>
+                </View>
+                <ChevronRight color="#94A3B8" size={20} />
+              </Pressable>
+
+              <View style={styles.contactBox}>
+                <Text style={styles.contactTitle}>Contact Support</Text>
+                <Text style={styles.contactItem}>Email: support@str8build.co.nz</Text>
+                <Text style={styles.contactItem}>Phone: +64 27 123 4567</Text>
+                <Text style={styles.contactItem}>Hours: Mon-Fri 9am-5pm NZST</Text>
+              </View>
+
+              <Pressable
+                style={styles.feedbackButton}
+                onPress={() => Alert.alert('Feedback', 'Thank you for your interest! Feedback form coming soon.')}
+              >
+                <Text style={styles.feedbackButtonText}>Send Feedback</Text>
+              </Pressable>
+            </ScrollView>
+
+            <View style={styles.modalActions}>
+              <Pressable
+                style={[styles.modalButton, styles.saveButton, { flex: 1 }]}
+                onPress={() => setActiveModal(null)}
+              >
+                <Text style={styles.saveButtonText}>Close</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -951,5 +1464,176 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
     color: '#FFF',
     flex: 1,
+  },
+  settingItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  settingInfo: {
+    flex: 1,
+    marginRight: 16,
+  },
+  settingLabel: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#FFF',
+    marginBottom: 4,
+  },
+  settingDescription: {
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    color: '#94A3B8',
+    lineHeight: 16,
+  },
+  toggle: {
+    width: 50,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    padding: 2,
+    justifyContent: 'center',
+  },
+  toggleActive: {
+    backgroundColor: '#3B82F6',
+  },
+  toggleThumb: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#FFF',
+  },
+  toggleThumbActive: {
+    marginLeft: 22,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    marginVertical: 8,
+  },
+  infoBox: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 20,
+    gap: 12,
+  },
+  infoBoxText: {
+    flex: 1,
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    color: '#FFF',
+    lineHeight: 16,
+  },
+  optionGroup: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  optionButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  optionButtonActive: {
+    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+    borderColor: '#3B82F6',
+  },
+  optionButtonText: {
+    fontSize: 14,
+    fontFamily: 'Inter-SemiBold',
+    color: '#94A3B8',
+  },
+  optionButtonTextActive: {
+    color: '#3B82F6',
+  },
+  helpSection: {
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 16,
+    marginBottom: 20,
+  },
+  helpTitle: {
+    fontSize: 22,
+    fontFamily: 'Inter-Bold',
+    color: '#FFF',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  helpDescription: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#94A3B8',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  helpCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    gap: 12,
+  },
+  helpCardIcon: {
+    width: 48,
+    height: 48,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  helpCardContent: {
+    flex: 1,
+  },
+  helpCardTitle: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#FFF',
+    marginBottom: 4,
+  },
+  helpCardDescription: {
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    color: '#94A3B8',
+    lineHeight: 16,
+  },
+  contactBox: {
+    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.3)',
+  },
+  contactTitle: {
+    fontSize: 16,
+    fontFamily: 'Inter-Bold',
+    color: '#3B82F6',
+    marginBottom: 12,
+  },
+  contactItem: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#FFF',
+    marginBottom: 6,
+  },
+  feedbackButton: {
+    backgroundColor: '#10B981',
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  feedbackButtonText: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#FFF',
   },
 });
