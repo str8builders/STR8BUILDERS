@@ -260,7 +260,7 @@ export const TradeWeatherImpact: React.FC = () => {
     : 0;
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <GlassCard variant="cyan" style={styles.mainCard}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
@@ -400,6 +400,8 @@ export const TradeWeatherImpact: React.FC = () => {
         )}
       </GlassCard>
 
+      <View style={{ height: 100 }} />
+
       <Modal visible={showSettings} transparent animationType="slide" onRequestClose={() => setShowSettings(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -460,16 +462,18 @@ export const TradeWeatherImpact: React.FC = () => {
           </View>
         </View>
       </Modal>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: 16,
   },
   mainCard: {
-    margin: 16,
+    marginTop: 16,
+    marginBottom: 16,
   },
   header: {
     flexDirection: 'row',
@@ -504,8 +508,8 @@ const styles = StyleSheet.create({
     color: '#CBD5E1',
     textTransform: 'uppercase',
     letterSpacing: 1,
-    marginBottom: 12,
-    marginTop: 20,
+    marginBottom: 10,
+    marginTop: 16,
   },
   tradeSelector: {
     marginTop: 8,
@@ -543,8 +547,8 @@ const styles = StyleSheet.create({
   summaryCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: 16,
-    padding: 20,
-    marginTop: 16,
+    padding: 16,
+    marginTop: 12,
     borderWidth: 1,
     borderColor: 'rgba(148, 163, 184, 0.2)',
   },
@@ -552,15 +556,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   summaryTitle: {
-    fontSize: 15,
+    fontSize: 14,
     fontFamily: 'Inter-Bold',
     color: '#FFF',
   },
   workHours: {
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: 'Inter-Regular',
     color: '#64748B',
   },
@@ -568,25 +572,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   scoreValue: {
-    fontSize: 48,
+    fontSize: 40,
     fontFamily: 'Inter-Bold',
   },
   scoreLabel: {
-    fontSize: 13,
+    fontSize: 12,
     fontFamily: 'Inter-Medium',
     color: '#94A3B8',
-    marginTop: 4,
+    marginTop: 2,
   },
   forecastScroll: {
-    marginBottom: 8,
+    marginBottom: 4,
   },
   forecastCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: 12,
-    padding: 14,
-    marginRight: 12,
+    padding: 12,
+    marginRight: 10,
     alignItems: 'center',
-    width: 100,
+    width: 90,
     borderWidth: 1,
     borderColor: 'rgba(148, 163, 184, 0.2)',
   },
@@ -595,41 +599,41 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(6, 182, 212, 0.4)',
   },
   forecastTime: {
-    fontSize: 13,
+    fontSize: 12,
     fontFamily: 'Inter-Bold',
     color: '#E2E8F0',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   forecastTemp: {
-    fontSize: 16,
+    fontSize: 15,
     fontFamily: 'Inter-Bold',
     color: '#FFF',
-    marginTop: 8,
+    marginTop: 6,
   },
   forecastDetails: {
-    gap: 6,
-    marginTop: 10,
+    gap: 4,
+    marginTop: 8,
     width: '100%',
   },
   forecastDetailRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 4,
   },
   forecastDetailText: {
-    fontSize: 11,
+    fontSize: 10,
     fontFamily: 'Inter-Regular',
     color: '#94A3B8',
   },
   impactBadge: {
-    marginTop: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
+    marginTop: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
     borderWidth: 1,
   },
   impactScore: {
-    fontSize: 14,
+    fontSize: 13,
     fontFamily: 'Inter-Bold',
   },
   impactDetails: {
