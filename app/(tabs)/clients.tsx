@@ -800,113 +800,143 @@ export default function Clients() {
               </Pressable>
             </View>
 
-            <ScrollView style={styles.modalBody}>
+            <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
               {selectedClient && (
                 <View style={styles.clientInfoBanner}>
-                  <Text style={styles.clientInfoText}>
-                    Client: {selectedClient.name}
-                  </Text>
-                  <Text style={styles.clientInfoSubtext}>
-                    Rate: ${selectedClient.hourlyRate}/hr
-                  </Text>
+                  <View style={styles.clientInfoRow}>
+                    <Building color="#14B8A6" size={20} />
+                    <View style={styles.clientInfoDetails}>
+                      <Text style={styles.clientInfoLabel}>Client</Text>
+                      <Text style={styles.clientInfoText}>{selectedClient.name}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.clientRateBadge}>
+                    <DollarSign color="#14B8A6" size={16} />
+                    <Text style={styles.clientRateText}>${selectedClient.hourlyRate}/hr</Text>
+                  </View>
                 </View>
               )}
 
-              <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>Project *</Text>
-                <View style={styles.pickerContainer}>
-                  <select
-                    value={newTimesheet.projectId}
-                    onChange={(e: any) => setNewTimesheet({...newTimesheet, projectId: e.target.value})}
-                    style={{
-                      width: '100%',
-                      padding: 12,
-                      backgroundColor: 'rgba(30, 41, 59, 0.6)',
-                      border: '1px solid rgba(148, 163, 184, 0.2)',
-                      borderRadius: 12,
-                      color: '#FFF',
-                      fontSize: 14,
-                      fontFamily: 'Inter-Regular',
-                    }}
-                  >
-                    <option value="">Select a project</option>
-                    {projects
-                      .filter(p => p.clientId === selectedClient?.id)
-                      .map(project => (
-                        <option key={project.id} value={project.id}>
-                          {project.name}
-                        </option>
-                      ))}
-                  </select>
+              <View style={styles.formSection}>
+                <Text style={styles.sectionLabel}>Project Details</Text>
+
+                <View style={styles.formGroup}>
+                  <Text style={styles.formLabel}>Project <Text style={styles.required}>*</Text></Text>
+                  <View style={styles.pickerContainer}>
+                    <select
+                      value={newTimesheet.projectId}
+                      onChange={(e: any) => setNewTimesheet({...newTimesheet, projectId: e.target.value})}
+                      style={{
+                        width: '100%',
+                        padding: 14,
+                        backgroundColor: 'rgba(30, 41, 59, 0.5)',
+                        border: '1px solid rgba(148, 163, 184, 0.3)',
+                        borderRadius: 12,
+                        color: '#FFF',
+                        fontSize: 15,
+                        fontFamily: 'Inter-Regular',
+                        outline: 'none',
+                      }}
+                    >
+                      <option value="" style={{ backgroundColor: '#1E293B', color: '#94A3B8' }}>Select a project</option>
+                      {projects
+                        .filter(p => p.clientId === selectedClient?.id)
+                        .map(project => (
+                          <option key={project.id} value={project.id} style={{ backgroundColor: '#1E293B', color: '#FFF' }}>
+                            {project.name}
+                          </option>
+                        ))}
+                    </select>
+                  </View>
                 </View>
               </View>
 
-              <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>Date *</Text>
-                <TextInput
-                  style={styles.formInput}
-                  value={newTimesheet.date}
-                  onChangeText={(text) => setNewTimesheet({...newTimesheet, date: text})}
-                  placeholder="YYYY-MM-DD"
-                  placeholderTextColor="#64748B"
-                />
+              <View style={styles.formSection}>
+                <Text style={styles.sectionLabel}>Time & Duration</Text>
+
+                <View style={styles.formRow}>
+                  <View style={[styles.formGroup, { flex: 1 }]}>
+                    <Text style={styles.formLabel}>Date <Text style={styles.required}>*</Text></Text>
+                    <TextInput
+                      style={styles.formInput}
+                      value={newTimesheet.date}
+                      onChangeText={(text) => setNewTimesheet({...newTimesheet, date: text})}
+                      placeholder="YYYY-MM-DD"
+                      placeholderTextColor="#64748B"
+                    />
+                  </View>
+
+                  <View style={[styles.formGroup, { flex: 1 }]}>
+                    <Text style={styles.formLabel}>Hours <Text style={styles.required}>*</Text></Text>
+                    <TextInput
+                      style={styles.formInput}
+                      value={newTimesheet.hours}
+                      onChangeText={(text) => setNewTimesheet({...newTimesheet, hours: text})}
+                      placeholder="8.0"
+                      placeholderTextColor="#64748B"
+                      keyboardType="decimal-pad"
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.formRow}>
+                  <View style={[styles.formGroup, { flex: 1 }]}>
+                    <Text style={styles.formLabel}>Start Time</Text>
+                    <View style={styles.timeInputContainer}>
+                      <Clock color="#64748B" size={16} />
+                      <TextInput
+                        style={styles.timeInput}
+                        value={newTimesheet.startTime}
+                        onChangeText={(text) => setNewTimesheet({...newTimesheet, startTime: text})}
+                        placeholder="09:00"
+                        placeholderTextColor="#64748B"
+                      />
+                    </View>
+                  </View>
+
+                  <View style={[styles.formGroup, { flex: 1 }]}>
+                    <Text style={styles.formLabel}>End Time</Text>
+                    <View style={styles.timeInputContainer}>
+                      <Clock color="#64748B" size={16} />
+                      <TextInput
+                        style={styles.timeInput}
+                        value={newTimesheet.endTime}
+                        onChangeText={(text) => setNewTimesheet({...newTimesheet, endTime: text})}
+                        placeholder="17:00"
+                        placeholderTextColor="#64748B"
+                      />
+                    </View>
+                  </View>
+                </View>
               </View>
 
-              <View style={styles.formRow}>
-                <View style={[styles.formGroup, { flex: 1 }]}>
-                  <Text style={styles.formLabel}>Start Time</Text>
+              <View style={styles.formSection}>
+                <Text style={styles.sectionLabel}>Work Description</Text>
+
+                <View style={styles.formGroup}>
+                  <Text style={styles.formLabel}>Description <Text style={styles.required}>*</Text></Text>
                   <TextInput
-                    style={styles.formInput}
-                    value={newTimesheet.startTime}
-                    onChangeText={(text) => setNewTimesheet({...newTimesheet, startTime: text})}
-                    placeholder="09:00"
+                    style={[styles.formInput, styles.textArea]}
+                    value={newTimesheet.description}
+                    onChangeText={(text) => setNewTimesheet({...newTimesheet, description: text})}
+                    placeholder="Describe the work performed, tasks completed, and any relevant details..."
                     placeholderTextColor="#64748B"
+                    multiline
+                    numberOfLines={5}
                   />
                 </View>
-
-                <View style={[styles.formGroup, { flex: 1 }]}>
-                  <Text style={styles.formLabel}>End Time</Text>
-                  <TextInput
-                    style={styles.formInput}
-                    value={newTimesheet.endTime}
-                    onChangeText={(text) => setNewTimesheet({...newTimesheet, endTime: text})}
-                    placeholder="17:00"
-                    placeholderTextColor="#64748B"
-                  />
-                </View>
               </View>
 
-              <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>Hours *</Text>
-                <TextInput
-                  style={styles.formInput}
-                  value={newTimesheet.hours}
-                  onChangeText={(text) => setNewTimesheet({...newTimesheet, hours: text})}
-                  placeholder="8"
-                  placeholderTextColor="#64748B"
-                  keyboardType="decimal-pad"
-                />
-              </View>
-
-              <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>Description *</Text>
-                <TextInput
-                  style={[styles.formInput, styles.textArea]}
-                  value={newTimesheet.description}
-                  onChangeText={(text) => setNewTimesheet({...newTimesheet, description: text})}
-                  placeholder="Describe the work performed..."
-                  placeholderTextColor="#64748B"
-                  multiline
-                  numberOfLines={4}
-                />
-              </View>
-
-              {selectedClient && (
+              {selectedClient && parseFloat(newTimesheet.hours || '0') > 0 && (
                 <View style={styles.calculationPreview}>
-                  <Text style={styles.calculationText}>
-                    Total: ${(parseFloat(newTimesheet.hours || '0') * selectedClient.hourlyRate).toFixed(2)}
+                  <View style={styles.calculationHeader}>
+                    <Receipt color="#3B82F6" size={20} />
+                    <Text style={styles.calculationTitle}>Total Amount</Text>
+                  </View>
+                  <Text style={styles.calculationAmount}>
+                    ${(parseFloat(newTimesheet.hours || '0') * selectedClient.hourlyRate).toFixed(2)}
                   </Text>
-                  <Text style={styles.calculationSubtext}>
+                  <Text style={styles.calculationBreakdown}>
                     {newTimesheet.hours || '0'} hours × ${selectedClient.hourlyRate}/hr
                   </Text>
                 </View>
@@ -1647,46 +1677,121 @@ const styles = StyleSheet.create({
     color: '#64748B',
   },
   clientInfoBanner: {
-    backgroundColor: 'rgba(20, 184, 166, 0.1)',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 20,
+    backgroundColor: 'rgba(20, 184, 166, 0.08)',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 24,
     borderWidth: 1,
-    borderColor: 'rgba(20, 184, 166, 0.3)',
+    borderColor: 'rgba(20, 184, 166, 0.2)',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  clientInfoText: {
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-    color: '#FFF',
+  clientInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  clientInfoDetails: {
+    flex: 1,
+  },
+  clientInfoLabel: {
+    fontSize: 12,
+    fontFamily: 'Inter-Medium',
+    color: '#64748B',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
     marginBottom: 4,
   },
-  clientInfoSubtext: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
+  clientInfoText: {
+    fontSize: 18,
+    fontFamily: 'Inter-Bold',
+    color: '#FFF',
+  },
+  clientRateBadge: {
+    backgroundColor: 'rgba(20, 184, 166, 0.15)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  clientRateText: {
+    fontSize: 15,
+    fontFamily: 'Inter-Bold',
     color: '#14B8A6',
+  },
+  formSection: {
+    marginBottom: 28,
+  },
+  sectionLabel: {
+    fontSize: 13,
+    fontFamily: 'Inter-Bold',
+    color: '#94A3B8',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginBottom: 16,
+  },
+  required: {
+    color: '#EF4444',
+    fontSize: 14,
   },
   pickerContainer: {
     width: '100%',
   },
-  calculationPreview: {
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-    borderRadius: 12,
-    padding: 16,
-    marginTop: 20,
+  timeInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: 'rgba(30, 41, 59, 0.5)',
     borderWidth: 1,
-    borderColor: 'rgba(59, 130, 246, 0.3)',
+    borderColor: 'rgba(148, 163, 184, 0.3)',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 4,
+  },
+  timeInput: {
+    flex: 1,
+    fontSize: 15,
+    fontFamily: 'Inter-Regular',
+    color: '#FFF',
+    paddingVertical: 10,
+  },
+  calculationPreview: {
+    backgroundColor: 'rgba(59, 130, 246, 0.08)',
+    borderRadius: 16,
+    padding: 24,
+    marginTop: 8,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.25)',
     alignItems: 'center',
   },
-  calculationText: {
-    fontSize: 24,
+  calculationHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  calculationTitle: {
+    fontSize: 13,
+    fontFamily: 'Inter-Bold',
+    color: '#94A3B8',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  calculationAmount: {
+    fontSize: 36,
     fontFamily: 'Inter-Bold',
     color: '#3B82F6',
-    marginBottom: 4,
+    marginBottom: 8,
   },
-  calculationSubtext: {
+  calculationBreakdown: {
     fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    color: '#94A3B8',
+    fontFamily: 'Inter-Medium',
+    color: '#64748B',
   },
   emailButton: {
     backgroundColor: '#8B5CF6',
