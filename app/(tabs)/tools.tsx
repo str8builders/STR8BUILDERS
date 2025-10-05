@@ -997,32 +997,35 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   tabBar: {
+    maxHeight: 60,
+    marginHorizontal: 16,
+    marginBottom: 16,
+  },
+  tabBarContent: {
+    flexDirection: 'row',
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 16,
     padding: 4,
-    marginHorizontal: 16,
-    marginBottom: 20,
-  },
-  tabBarContent: {
-    paddingHorizontal: 4,
-    gap: 4,
+    gap: 6,
   },
   tab: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 10,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     borderRadius: 12,
     gap: 6,
+    minWidth: 90,
   },
   activeTab: {
     backgroundColor: '#3B82F6',
   },
   tabText: {
-    fontSize: 14,
+    fontSize: 13,
     fontFamily: 'Inter-SemiBold',
     color: '#94A3B8',
+    whiteSpace: 'nowrap',
   },
   activeTabText: {
     color: '#FFF',
