@@ -157,19 +157,32 @@ export default function Clients() {
       setIsGeneratingPDF(true);
       const client = clients.find(c => c.id === clientId);
       const clientTimesheets = getClientTimesheets(clientId);
-      
-      if (!client || clientTimesheets.length === 0) {
-        Alert.alert('Error', 'No timesheet data available');
+
+      if (!client) {
+        Alert.alert('Error', 'Client not found');
+        setIsGeneratingPDF(false);
+        return;
+      }
+
+      if (clientTimesheets.length === 0) {
+        Alert.alert(
+          'No Timesheets',
+          'This client has no timesheet entries yet. Start tracking time using the Job Timer on the Dashboard to create timesheet entries.',
+          [{ text: 'OK' }]
+        );
+        setIsGeneratingPDF(false);
         return;
       }
 
       const pdfUri = await generateTimesheetPDF(
-        clientTimesheets, 
-        client, 
+        clientTimesheets,
+        client,
         'All Time Entries'
       );
       await shareViaPDF(pdfUri, `Timesheet-${client.name.replace(/\s+/g, '-')}.pdf`);
+      Alert.alert('Success', 'Timesheet PDF generated successfully!');
     } catch (error) {
+      console.error('PDF Generation Error:', error);
       Alert.alert('Error', 'Failed to generate timesheet PDF. Please try again.');
     } finally {
       setIsGeneratingPDF(false);
@@ -346,13 +359,21 @@ export default function Clients() {
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Timesheets</Text>
           <View style={styles.timesheetStats}>
-            <Pressable 
-              style={styles.downloadButton}
+            <Pressable
+              style={[
+                styles.downloadButton,
+                isGeneratingPDF && styles.downloadButtonDisabled
+              ]}
               onPress={() => selectedClient && handleDownloadTimesheetPDF(selectedClient.id)}
               disabled={isGeneratingPDF}
             >
-              <Download color="#14B8A6" size={16} />
-              <Text style={styles.downloadButtonText}>PDF</Text>
+              <Download color={isGeneratingPDF ? "#64748B" : "#14B8A6"} size={16} />
+              <Text style={[
+                styles.downloadButtonText,
+                isGeneratingPDF && styles.downloadButtonTextDisabled
+              ]}>
+                {isGeneratingPDF ? 'Generating...' : 'PDF'}
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -1395,10 +1416,17 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     gap: 6,
   },
+  downloadButtonDisabled: {
+    backgroundColor: 'rgba(100, 116, 139, 0.3)',
+    opacity: 0.6,
+  },
   downloadButtonText: {
     fontSize: 12,
     fontFamily: 'Inter-SemiBold',
     color: '#14B8A6',
+  },
+  downloadButtonTextDisabled: {
+    color: '#64748B',
   },
   emailButton: {
     backgroundColor: '#8B5CF6',
