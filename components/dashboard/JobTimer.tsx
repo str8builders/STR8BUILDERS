@@ -249,22 +249,34 @@ export const JobTimer: React.FC = () => {
             </View>
             
             <ScrollView style={styles.projectList}>
-              {projects.map((project) => (
-                <Pressable
-                  key={project.id}
-                  style={[
-                    styles.projectItem,
-                    currentProject?.id === project.id && styles.selectedProject
-                  ]}
-                  onPress={() => selectProject(project)}
-                >
-                  <View style={styles.projectItemInfo}>
-                    <Text style={styles.projectItemName}>{project.name}</Text>
-                    <Text style={styles.projectItemClient}>{project.client}</Text>
-                  </View>
-                  <Text style={styles.projectItemRate}>${project.hourlyRate}/hr</Text>
-                </Pressable>
-              ))}
+              {projects.length === 0 ? (
+                <View style={styles.emptyProjectState}>
+                  <Text style={styles.emptyProjectTitle}>No Projects Yet</Text>
+                  <Text style={styles.emptyProjectDescription}>
+                    You need to add a client and create a project first.
+                  </Text>
+                  <Text style={styles.emptyProjectHint}>
+                    Go to the Clients tab to get started.
+                  </Text>
+                </View>
+              ) : (
+                projects.map((project) => (
+                  <Pressable
+                    key={project.id}
+                    style={[
+                      styles.projectItem,
+                      currentProject?.id === project.id && styles.selectedProject
+                    ]}
+                    onPress={() => selectProject(project)}
+                  >
+                    <View style={styles.projectItemInfo}>
+                      <Text style={styles.projectItemName}>{project.name}</Text>
+                      <Text style={styles.projectItemClient}>{project.client}</Text>
+                    </View>
+                    <Text style={styles.projectItemRate}>${project.hourlyRate}/hr</Text>
+                  </Pressable>
+                ))
+              )}
             </ScrollView>
           </View>
         </View>
@@ -624,5 +636,31 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: 'Inter-Bold',
     color: '#10B981',
+  },
+  emptyProjectState: {
+    alignItems: 'center',
+    paddingVertical: 40,
+    paddingHorizontal: 20,
+  },
+  emptyProjectTitle: {
+    fontSize: 18,
+    fontFamily: 'Inter-Bold',
+    color: '#FFF',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptyProjectDescription: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#94A3B8',
+    textAlign: 'center',
+    marginBottom: 12,
+    lineHeight: 20,
+  },
+  emptyProjectHint: {
+    fontSize: 12,
+    fontFamily: 'Inter-SemiBold',
+    color: '#3B82F6',
+    textAlign: 'center',
   },
 });
