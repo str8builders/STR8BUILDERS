@@ -425,31 +425,13 @@ export default function Clients() {
       <View style={styles.timesheetsContainer}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Timesheets</Text>
-          <View style={styles.timesheetStats}>
-            <Pressable
-              style={styles.newTimesheetButton}
-              onPress={() => setShowTimesheetModal(true)}
-            >
-              <Plus color="#FFF" size={16} />
-              <Text style={styles.newTimesheetButtonText}>New</Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.downloadButton,
-                isGeneratingPDF && styles.downloadButtonDisabled
-              ]}
-              onPress={() => selectedClient && handleDownloadTimesheetPDF(selectedClient.id)}
-              disabled={isGeneratingPDF}
-            >
-              <Download color={isGeneratingPDF ? "#64748B" : "#14B8A6"} size={16} />
-              <Text style={[
-                styles.downloadButtonText,
-                isGeneratingPDF && styles.downloadButtonTextDisabled
-              ]}>
-                {isGeneratingPDF ? 'Generating...' : 'PDF'}
-              </Text>
-            </Pressable>
-          </View>
+          <Pressable
+            style={styles.newTimesheetButton}
+            onPress={() => setShowTimesheetModal(true)}
+          >
+            <Plus color="#FFF" size={16} />
+            <Text style={styles.newTimesheetButtonText}>New</Text>
+          </Pressable>
         </View>
         
         {clientTimesheets.length === 0 ? (
