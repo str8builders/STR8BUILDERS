@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, Image, Modal, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Image, Modal, Alert, Platform } from 'react-native';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Camera, Image as ImageIcon, Grid, Calendar, Share2, Download, X, ArrowLeftRight } from 'lucide-react-native';
+import * as ImagePicker from 'expo-image-picker';
 
 interface Photo {
   id: string;
@@ -18,8 +19,7 @@ export function PhotoDocumentation() {
   const [viewMode, setViewMode] = useState<'grid' | 'timeline'>('grid');
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [compareMode, setCompareMode] = useState(false);
-
-  const photos: Photo[] = [
+  const [photos, setPhotos] = useState<Photo[]>([
     {
       id: '1',
       url: 'https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg',
@@ -74,13 +74,57 @@ export function PhotoDocumentation() {
       date: new Date(2025, 9, 1),
       tags: ['bathroom', 'completed', 'modern'],
     },
-  ];
+  ]);
 
   const projects = ['all', ...Array.from(new Set(photos.map(p => p.project)))];
 
   const filteredPhotos = selectedProject === 'all'
     ? photos
     : photos.filter(p => p.project === selectedProject);
+
+  const openCamera = async () => {
+    if (Platform.OS === 'web') {
+      Alert.alert(
+        'Camera Not Available',
+        'Camera access is not available on web. This feature works on iOS and Android devices.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+
+    if (!permissionResult.granted) {
+      Alert.alert(
+        'Permission Required',
+        'Camera permission is required to take photos.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      const newPhoto: Photo = {
+        id: Date.now().toString(),
+        url: result.assets[0].uri,
+        project: selectedProject === 'all' ? 'New Project' : selectedProject,
+        type: 'progress',
+        caption: 'New photo',
+        date: new Date(),
+        tags: ['new'],
+      };
+
+      setPhotos([newPhoto, ...photos]);
+      Alert.alert('Success', 'Photo added successfully!');
+    }
+  };
 
   const getTypeColor = (type: string) => {
     switch (type) {
@@ -100,41 +144,42 @@ export function PhotoDocumentation() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
-        <View>
+        <View style={styles.headerLeft}>
           <Text style={styles.title}>Photo Documentation</Text>
           <Text style={styles.subtitle}>{filteredPhotos.length} photos</Text>
         </View>
-        <Pressable style={styles.cameraButton} onPress={() => Alert.alert('Camera', 'Open camera to take photo')}>
+        <Pressable style={styles.cameraButton} onPress={openCamera}>
           <Camera color="#FFF" size={24} />
         </Pressable>
       </View>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.projectFilter}
-        contentContainerStyle={styles.projectFilterContent}
-      >
-        {projects.map((project) => (
-          <Pressable
-            key={project}
-            style={[
-              styles.projectChip,
-              selectedProject === project && styles.projectChipActive
-            ]}
-            onPress={() => setSelectedProject(project)}
-          >
-            <Text style={[
-              styles.projectChipText,
-              selectedProject === project && styles.projectChipTextActive
-            ]}>
-              {project === 'all' ? 'All Projects' : project}
-            </Text>
-          </Pressable>
-        ))}
-      </ScrollView>
+      <View style={styles.filterSection}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.projectFilterContent}
+        >
+          {projects.map((project) => (
+            <Pressable
+              key={project}
+              style={[
+                styles.projectChip,
+                selectedProject === project && styles.projectChipActive
+              ]}
+              onPress={() => setSelectedProject(project)}
+            >
+              <Text style={[
+                styles.projectChipText,
+                selectedProject === project && styles.projectChipTextActive
+              ]}>
+                {project === 'all' ? 'All Projects' : project}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+      </View>
 
       <View style={styles.controls}>
         <Pressable
@@ -158,7 +203,7 @@ export function PhotoDocumentation() {
         </Pressable>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <View style={styles.content}>
         {viewMode === 'grid' ? (
           <View style={styles.photoGrid}>
             {filteredPhotos.map((photo) => (
@@ -310,7 +355,7 @@ export function PhotoDocumentation() {
           </ScrollView>
         </View>
       </Modal>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -322,8 +367,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
-    paddingTop: 60,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 12,
+  },
+  headerLeft: {
+    flex: 1,
   },
   title: {
     fontSize: 24,
@@ -344,11 +393,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  projectFilter: {
-    paddingHorizontal: 16,
-    marginBottom: 16,
+  filterSection: {
+    marginBottom: 12,
   },
   projectFilterContent: {
+    paddingHorizontal: 16,
     gap: 8,
   },
   projectChip: {
