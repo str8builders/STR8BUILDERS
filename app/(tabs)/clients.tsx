@@ -9,6 +9,7 @@ import { generateInvoicePDF, generateTimesheetPDF, shareViaPDF, sendViaEmail } f
 export default function Clients() {
   const {
     clients,
+    projects,
     addClient,
     deleteClient,
     getClientInvoices,
@@ -19,17 +20,19 @@ export default function Clients() {
     createInvoice,
     updateInvoice,
     deleteInvoice,
+    addTimesheetEntry,
   } = useAppData();
 
   const [selectedClient, setSelectedClient] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'invoices' | 'timesheets'>('overview');
   const [showAddClientModal, setShowAddClientModal] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+  const [showTimesheetModal, setShowTimesheetModal] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [selectedTimesheets, setSelectedTimesheets] = useState<string[]>([]);
   const [invoiceNotes, setInvoiceNotes] = useState('');
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
-  
+
   // Form state for adding new client
   const [newClient, setNewClient] = useState({
     name: '',
@@ -37,6 +40,16 @@ export default function Clients() {
     phone: '',
     address: '',
     hourlyRate: '85'
+  });
+
+  // Form state for adding new timesheet
+  const [newTimesheet, setNewTimesheet] = useState({
+    projectId: '',
+    date: new Date().toISOString().split('T')[0],
+    startTime: '09:00',
+    endTime: '17:00',
+    hours: '8',
+    description: '',
   });
 
   const handleAddClient = () => {
@@ -102,13 +115,67 @@ export default function Clients() {
     Alert.alert('Success', `Invoice status updated to ${status}`);
   };
 
+  const handleAddTimesheet = () => {
+    if (!selectedClient) {
+      Alert.alert('Error', 'No client selected');
+      return;
+    }
+
+    if (!newTimesheet.projectId) {
+      Alert.alert('Error', 'Please select a project');
+      return;
+    }
+
+    if (!newTimesheet.description.trim()) {
+      Alert.alert('Error', 'Please enter a description');
+      return;
+    }
+
+    const project = projects.find(p => p.id === newTimesheet.projectId);
+    if (!project) {
+      Alert.alert('Error', 'Project not found');
+      return;
+    }
+
+    const hours = parseFloat(newTimesheet.hours);
+    if (isNaN(hours) || hours <= 0) {
+      Alert.alert('Error', 'Please enter valid hours');
+      return;
+    }
+
+    addTimesheetEntry({
+      clientId: selectedClient.id,
+      clientName: selectedClient.name,
+      projectId: newTimesheet.projectId,
+      projectName: project.name,
+      date: newTimesheet.date,
+      startTime: newTimesheet.startTime,
+      endTime: newTimesheet.endTime,
+      hours,
+      rate: selectedClient.hourlyRate || project.hourlyRate || 85,
+      description: newTimesheet.description,
+      invoiced: false,
+    });
+
+    setNewTimesheet({
+      projectId: '',
+      date: new Date().toISOString().split('T')[0],
+      startTime: '09:00',
+      endTime: '17:00',
+      hours: '8',
+      description: '',
+    });
+    setShowTimesheetModal(false);
+    Alert.alert('Success', 'Timesheet entry added successfully!');
+  };
+
   const handleDeleteInvoice = (invoiceId: string) => {
     Alert.alert(
       'Delete Invoice',
       'Are you sure you want to delete this invoice?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
+        {
           text: 'Delete', 
           style: 'destructive',
           onPress: () => {
@@ -359,6 +426,13 @@ export default function Clients() {
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Timesheets</Text>
           <View style={styles.timesheetStats}>
+            <Pressable
+              style={styles.newTimesheetButton}
+              onPress={() => setShowTimesheetModal(true)}
+            >
+              <Plus color="#FFF" size={16} />
+              <Text style={styles.newTimesheetButtonText}>New</Text>
+            </Pressable>
             <Pressable
               style={[
                 styles.downloadButton,
@@ -722,6 +796,153 @@ export default function Clients() {
                 onPress={handleCreateInvoice}
               >
                 <Text style={styles.saveButtonText}>Create Invoice</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Add Timesheet Modal */}
+      <Modal
+        visible={showTimesheetModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowTimesheetModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>New Timesheet Entry</Text>
+              <Pressable onPress={() => setShowTimesheetModal(false)}>
+                <X color="#94A3B8" size={24} />
+              </Pressable>
+            </View>
+
+            <ScrollView style={styles.modalBody}>
+              {selectedClient && (
+                <View style={styles.clientInfoBanner}>
+                  <Text style={styles.clientInfoText}>
+                    Client: {selectedClient.name}
+                  </Text>
+                  <Text style={styles.clientInfoSubtext}>
+                    Rate: ${selectedClient.hourlyRate}/hr
+                  </Text>
+                </View>
+              )}
+
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Project *</Text>
+                <View style={styles.pickerContainer}>
+                  <select
+                    value={newTimesheet.projectId}
+                    onChange={(e: any) => setNewTimesheet({...newTimesheet, projectId: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: 12,
+                      backgroundColor: 'rgba(30, 41, 59, 0.6)',
+                      border: '1px solid rgba(148, 163, 184, 0.2)',
+                      borderRadius: 12,
+                      color: '#FFF',
+                      fontSize: 14,
+                      fontFamily: 'Inter-Regular',
+                    }}
+                  >
+                    <option value="">Select a project</option>
+                    {projects
+                      .filter(p => p.clientId === selectedClient?.id)
+                      .map(project => (
+                        <option key={project.id} value={project.id}>
+                          {project.name}
+                        </option>
+                      ))}
+                  </select>
+                </View>
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Date *</Text>
+                <TextInput
+                  style={styles.formInput}
+                  value={newTimesheet.date}
+                  onChangeText={(text) => setNewTimesheet({...newTimesheet, date: text})}
+                  placeholder="YYYY-MM-DD"
+                  placeholderTextColor="#64748B"
+                />
+              </View>
+
+              <View style={styles.formRow}>
+                <View style={[styles.formGroup, { flex: 1 }]}>
+                  <Text style={styles.formLabel}>Start Time</Text>
+                  <TextInput
+                    style={styles.formInput}
+                    value={newTimesheet.startTime}
+                    onChangeText={(text) => setNewTimesheet({...newTimesheet, startTime: text})}
+                    placeholder="09:00"
+                    placeholderTextColor="#64748B"
+                  />
+                </View>
+
+                <View style={[styles.formGroup, { flex: 1 }]}>
+                  <Text style={styles.formLabel}>End Time</Text>
+                  <TextInput
+                    style={styles.formInput}
+                    value={newTimesheet.endTime}
+                    onChangeText={(text) => setNewTimesheet({...newTimesheet, endTime: text})}
+                    placeholder="17:00"
+                    placeholderTextColor="#64748B"
+                  />
+                </View>
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Hours *</Text>
+                <TextInput
+                  style={styles.formInput}
+                  value={newTimesheet.hours}
+                  onChangeText={(text) => setNewTimesheet({...newTimesheet, hours: text})}
+                  placeholder="8"
+                  placeholderTextColor="#64748B"
+                  keyboardType="decimal-pad"
+                />
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Description *</Text>
+                <TextInput
+                  style={[styles.formInput, styles.textArea]}
+                  value={newTimesheet.description}
+                  onChangeText={(text) => setNewTimesheet({...newTimesheet, description: text})}
+                  placeholder="Describe the work performed..."
+                  placeholderTextColor="#64748B"
+                  multiline
+                  numberOfLines={4}
+                />
+              </View>
+
+              {selectedClient && (
+                <View style={styles.calculationPreview}>
+                  <Text style={styles.calculationText}>
+                    Total: ${(parseFloat(newTimesheet.hours || '0') * selectedClient.hourlyRate).toFixed(2)}
+                  </Text>
+                  <Text style={styles.calculationSubtext}>
+                    {newTimesheet.hours || '0'} hours × ${selectedClient.hourlyRate}/hr
+                  </Text>
+                </View>
+              )}
+            </ScrollView>
+
+            <View style={styles.modalFooter}>
+              <Pressable
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => setShowTimesheetModal(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.modalButton, styles.primaryButton]}
+                onPress={handleAddTimesheet}
+              >
+                <Text style={styles.primaryButtonText}>Add Timesheet</Text>
               </Pressable>
             </View>
           </View>
@@ -1407,6 +1628,21 @@ const styles = StyleSheet.create({
   deleteButton: {
     backgroundColor: '#EF4444',
   },
+  newTimesheetButton: {
+    backgroundColor: '#14B8A6',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    gap: 6,
+    marginRight: 8,
+  },
+  newTimesheetButtonText: {
+    fontSize: 12,
+    fontFamily: 'Inter-SemiBold',
+    color: '#FFF',
+  },
   downloadButton: {
     backgroundColor: '#06B6D4',
     flexDirection: 'row',
@@ -1427,6 +1663,48 @@ const styles = StyleSheet.create({
   },
   downloadButtonTextDisabled: {
     color: '#64748B',
+  },
+  clientInfoBanner: {
+    backgroundColor: 'rgba(20, 184, 166, 0.1)',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(20, 184, 166, 0.3)',
+  },
+  clientInfoText: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#FFF',
+    marginBottom: 4,
+  },
+  clientInfoSubtext: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#14B8A6',
+  },
+  pickerContainer: {
+    width: '100%',
+  },
+  calculationPreview: {
+    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.3)',
+    alignItems: 'center',
+  },
+  calculationText: {
+    fontSize: 24,
+    fontFamily: 'Inter-Bold',
+    color: '#3B82F6',
+    marginBottom: 4,
+  },
+  calculationSubtext: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#94A3B8',
   },
   emailButton: {
     backgroundColor: '#8B5CF6',
