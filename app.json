@@ -38,7 +38,20 @@
     "web": {
       "bundler": "metro",
       "output": "single",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "name": "STR8 BUILD",
+      "shortName": "STR8 BUILD",
+      "lang": "en",
+      "scope": "/",
+      "themeColor": "#0c0a1f",
+      "backgroundColor": "#0c0a1f",
+      "display": "standalone",
+      "orientation": "portrait",
+      "dir": "ltr",
+      "preferRelatedApplications": false,
+      "startUrl": "/",
+      "description": "Professional construction management app for NZ builders",
+      "categories": ["business", "productivity", "utilities"]
     },
     "plugins": [
       "expo-router",
