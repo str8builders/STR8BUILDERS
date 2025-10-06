@@ -31,7 +31,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Dashboard',
+          title: 'Overview',
           tabBarIcon: ({ color }) => (
             <Home color={color} size={24} />
           ),
@@ -40,7 +40,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="projects"
         options={{
-          title: 'Projects',
+          title: 'Jobs',
           tabBarIcon: ({ color }) => (
             <FolderOpen color={color} size={24} />
           ),
@@ -49,7 +49,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="clients"
         options={{
-          title: 'Clients',
+          title: 'Contacts',
           tabBarIcon: ({ color }) => (
             <Users color={color} size={24} />
           ),
@@ -58,7 +58,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="tools"
         options={{
-          title: 'Tools',
+          title: 'Workspace',
           tabBarIcon: ({ color }) => (
             <Wrench color={color} size={24} />
           ),
@@ -67,7 +67,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Settings',
+          title: 'Account',
           tabBarIcon: ({ color }) => (
             <Settings color={color} size={24} />
           ),
