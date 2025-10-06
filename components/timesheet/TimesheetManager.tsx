@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Modal, TextInput, Alert } from 'react-native';
 import { GlassCard } from '../ui/GlassCard';
-import { Plus, Clock, Calendar, User, CreditCard as Edit3, Trash2, X, Check, Timer, FileText } from 'lucide-react-native';
+import { Plus, Clock, Calendar, User, CreditCard as Edit3, Trash2, X, Check, Timer, FileText, Mail, Download } from 'lucide-react-native';
 import { useAppData } from '@/hooks/useAppData';
+import { generateTimesheetPDF, shareViaPDF, sendViaEmail } from '@/utils/pdfGenerator';
 
 export const TimesheetManager: React.FC = () => {
   const { 
@@ -133,6 +134,80 @@ export const TimesheetManager: React.FC = () => {
 
   const clientProjects = selectedClient ? getProjectsByClient(selectedClient) : [];
 
+  const handleExportPDF = async (clientId?: string) => {
+    try {
+      const entriesToExport = clientId
+        ? getWeekEntries().filter(e => e.clientId === clientId)
+        : getWeekEntries();
+
+      if (entriesToExport.length === 0) {
+        Alert.alert('Error', 'No timesheet entries to export');
+        return;
+      }
+
+      const client = clientId
+        ? clients.find(c => c.id === clientId)
+        : { id: 'all', name: 'All Clients', email: '', phone: '', address: '', status: 'Active' as const };
+
+      if (!client) {
+        Alert.alert('Error', 'Client not found');
+        return;
+      }
+
+      const today = new Date();
+      const weekStart = new Date(today.setDate(today.getDate() - today.getDay()));
+      const period = `Week of ${weekStart.toLocaleDateString()}`;
+
+      const uri = await generateTimesheetPDF(entriesToExport, client, period);
+      await shareViaPDF(uri, `Timesheet-${client.name.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`);
+      Alert.alert('Success', 'Timesheet PDF generated successfully!');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to generate PDF. Please try again.');
+      console.error(error);
+    }
+  };
+
+  const handleEmailTimesheet = async (clientId?: string) => {
+    try {
+      const entriesToExport = clientId
+        ? getWeekEntries().filter(e => e.clientId === clientId)
+        : getWeekEntries();
+
+      if (entriesToExport.length === 0) {
+        Alert.alert('Error', 'No timesheet entries to send');
+        return;
+      }
+
+      const client = clientId
+        ? clients.find(c => c.id === clientId)
+        : { id: 'all', name: 'All Clients', email: '', phone: '', address: '', status: 'Active' as const };
+
+      if (!client) {
+        Alert.alert('Error', 'Client not found');
+        return;
+      }
+
+      const today = new Date();
+      const weekStart = new Date(today.setDate(today.getDate() - today.getDay()));
+      const period = `Week of ${weekStart.toLocaleDateString()}`;
+
+      const totalHours = entriesToExport.reduce((sum, entry) => sum + entry.hours, 0);
+      const totalAmount = entriesToExport.reduce((sum, entry) => sum + (entry.hours * entry.rate), 0);
+
+      const uri = await generateTimesheetPDF(entriesToExport, client, period);
+      await sendViaEmail(
+        uri,
+        `Timesheet-${client.name.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`,
+        client.email || 'client@example.com',
+        `Timesheet Report - ${period}`,
+        `Dear ${client.name},\n\nPlease find attached your timesheet report for ${period}.\n\nTotal Hours: ${totalHours.toFixed(1)}\nTotal Amount: $${totalAmount.toFixed(2)}\n\nThank you for your business!\n\nBest regards,\nSTR8 BUILD`
+      );
+    } catch (error) {
+      Alert.alert('Error', 'Failed to send email. Please try again.');
+      console.error(error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -168,6 +243,25 @@ export const TimesheetManager: React.FC = () => {
           </View>
         </View>
       </GlassCard>
+
+      {/* Export Actions */}
+      <View style={styles.exportActions}>
+        <Pressable
+          style={[styles.exportButton, { backgroundColor: 'rgba(59, 130, 246, 0.2)', borderColor: '#3B82F6' }]}
+          onPress={() => handleExportPDF()}
+        >
+          <Download color="#3B82F6" size={18} />
+          <Text style={[styles.exportButtonText, { color: '#3B82F6' }]}>Export PDF</Text>
+        </Pressable>
+
+        <Pressable
+          style={[styles.exportButton, { backgroundColor: 'rgba(16, 185, 129, 0.2)', borderColor: '#10B981' }]}
+          onPress={() => handleEmailTimesheet()}
+        >
+          <Mail color="#10B981" size={18} />
+          <Text style={[styles.exportButtonText, { color: '#10B981' }]}>Email Report</Text>
+        </Pressable>
+      </View>
 
       {/* Recent Entries */}
       <GlassCard variant="teal" style={styles.entriesCard}>
@@ -478,6 +572,27 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginVertical: 0,
     marginBottom: 16,
+  },
+  exportActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginHorizontal: 16,
+    marginBottom: 16,
+  },
+  exportButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  exportButtonText: {
+    fontSize: 14,
+    fontFamily: 'Inter-SemiBold',
   },
   cardTitle: {
     fontSize: 18,

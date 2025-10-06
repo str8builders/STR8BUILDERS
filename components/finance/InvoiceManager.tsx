@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Modal, TextInput, Alert } from 'react-native';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { DollarSign, Plus, Download, Send, Clock, CheckCircle, X, Calendar } from 'lucide-react-native';
+import { DollarSign, Plus, Download, Send, Clock, CheckCircle, X, Calendar, Mail, FileText } from 'lucide-react-native';
+import { generateInvoicePDF, shareViaPDF, sendViaEmail } from '@/utils/pdfGenerator';
+import type { Invoice as InvoiceType } from '@/hooks/useAppData';
 
 interface Invoice {
   id: string;
@@ -100,6 +102,69 @@ export function InvoiceManager() {
     Alert.alert('Success', 'Invoice created successfully!');
   };
 
+  const handleDownloadPDF = async (invoice: Invoice) => {
+    try {
+      const invoiceData: InvoiceType = {
+        id: invoice.id,
+        invoiceNumber: invoice.id,
+        clientName: invoice.clientName,
+        projectName: invoice.projectName,
+        amount: invoice.amount,
+        status: invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1),
+        date: invoice.date,
+        dueDate: invoice.dueDate,
+        items: [{
+          description: invoice.projectName,
+          hours: 1,
+          rate: invoice.amount,
+          amount: invoice.amount,
+        }],
+        notes: 'Thank you for your business!',
+      };
+
+      const uri = await generateInvoicePDF(invoiceData);
+      await shareViaPDF(uri, `Invoice-${invoice.id}.pdf`);
+      Alert.alert('Success', 'Invoice PDF generated successfully!');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to generate PDF. Please try again.');
+      console.error(error);
+    }
+  };
+
+  const handleSendEmail = async (invoice: Invoice) => {
+    try {
+      const invoiceData: InvoiceType = {
+        id: invoice.id,
+        invoiceNumber: invoice.id,
+        clientName: invoice.clientName,
+        projectName: invoice.projectName,
+        amount: invoice.amount,
+        status: invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1),
+        date: invoice.date,
+        dueDate: invoice.dueDate,
+        items: [{
+          description: invoice.projectName,
+          hours: 1,
+          rate: invoice.amount,
+          amount: invoice.amount,
+        }],
+        notes: 'Thank you for your business!',
+      };
+
+      const uri = await generateInvoicePDF(invoiceData);
+      await sendViaEmail(
+        uri,
+        `Invoice-${invoice.id}.pdf`,
+        'client@example.com',
+        `Invoice ${invoice.id} - ${invoice.projectName}`,
+        `Dear ${invoice.clientName},\n\nPlease find attached invoice ${invoice.id} for ${invoice.projectName}.\n\nAmount: $${invoice.amount.toLocaleString()}\nDue Date: ${invoice.dueDate}\n\nThank you for your business!\n\nBest regards,\nSTR8 BUILD`
+      );
+    } catch (error) {
+      Alert.alert('Error', 'Failed to send email. Please try again.');
+      console.error(error);
+    }
+  };
+
   const totalRevenue = invoices
     .filter(inv => inv.status === 'paid')
     .reduce((sum, inv) => sum + inv.amount, 0);
@@ -155,27 +220,46 @@ export function InvoiceManager() {
           <Text style={styles.sectionTitle}>Recent Invoices</Text>
 
           {invoices.map((invoice) => (
-            <Pressable
-              key={invoice.id}
-              style={styles.invoiceItem}
-              onPress={() => Alert.alert(invoice.id, `Client: ${invoice.clientName}\nProject: ${invoice.projectName}\nAmount: $${invoice.amount.toLocaleString()}\nStatus: ${invoice.status.toUpperCase()}`)}
-            >
-              <View style={styles.invoiceLeft}>
-                <Text style={styles.invoiceId}>{invoice.id}</Text>
-                <Text style={styles.invoiceClient}>{invoice.clientName}</Text>
-                <Text style={styles.invoiceProject}>{invoice.projectName}</Text>
-              </View>
-
-              <View style={styles.invoiceRight}>
-                <Text style={styles.invoiceAmount}>${invoice.amount.toLocaleString()}</Text>
-                <View style={styles.statusBadge}>
-                  {getStatusIcon(invoice.status)}
-                  <Text style={[styles.statusText, { color: getStatusColor(invoice.status) }]}>
-                    {invoice.status.toUpperCase()}
-                  </Text>
+            <View key={invoice.id} style={styles.invoiceItemContainer}>
+              <Pressable
+                style={styles.invoiceItem}
+                onPress={() => Alert.alert(invoice.id, `Client: ${invoice.clientName}\nProject: ${invoice.projectName}\nAmount: $${invoice.amount.toLocaleString()}\nStatus: ${invoice.status.toUpperCase()}`)}
+              >
+                <View style={styles.invoiceLeft}>
+                  <Text style={styles.invoiceId}>{invoice.id}</Text>
+                  <Text style={styles.invoiceClient}>{invoice.clientName}</Text>
+                  <Text style={styles.invoiceProject}>{invoice.projectName}</Text>
                 </View>
+
+                <View style={styles.invoiceRight}>
+                  <Text style={styles.invoiceAmount}>${invoice.amount.toLocaleString()}</Text>
+                  <View style={styles.statusBadge}>
+                    {getStatusIcon(invoice.status)}
+                    <Text style={[styles.statusText, { color: getStatusColor(invoice.status) }]}>
+                      {invoice.status.toUpperCase()}
+                    </Text>
+                  </View>
+                </View>
+              </Pressable>
+
+              <View style={styles.invoiceActions}>
+                <Pressable
+                  style={[styles.invoiceActionButton, { backgroundColor: 'rgba(59, 130, 246, 0.1)' }]}
+                  onPress={() => handleDownloadPDF(invoice)}
+                >
+                  <FileText color="#3B82F6" size={16} />
+                  <Text style={[styles.invoiceActionText, { color: '#3B82F6' }]}>PDF</Text>
+                </Pressable>
+
+                <Pressable
+                  style={[styles.invoiceActionButton, { backgroundColor: 'rgba(16, 185, 129, 0.1)' }]}
+                  onPress={() => handleSendEmail(invoice)}
+                >
+                  <Mail color="#10B981" size={16} />
+                  <Text style={[styles.invoiceActionText, { color: '#10B981' }]}>Email</Text>
+                </Pressable>
               </View>
-            </Pressable>
+            </View>
           ))}
         </GlassCard>
 
@@ -349,12 +433,35 @@ const styles = StyleSheet.create({
     color: '#FFF',
     marginBottom: 16,
   },
+  invoiceItemContainer: {
+    marginBottom: 12,
+  },
   invoiceItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  invoiceActions: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 8,
+    paddingLeft: 4,
+  },
+  invoiceActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  invoiceActionText: {
+    fontSize: 12,
+    fontFamily: 'Inter-SemiBold',
   },
   invoiceLeft: {
     flex: 1,
