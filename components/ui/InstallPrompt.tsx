@@ -30,18 +30,19 @@ export const InstallPrompt: React.FC = () => {
         e.preventDefault();
         setDeferredPrompt(e);
         setCanInstall(true);
-
-        setTimeout(() => {
-          setShowPrompt(true);
-          scale.value = withSequence(
-            withTiming(1.1, { duration: 200, easing: Easing.out(Easing.cubic) }),
-            withTiming(1, { duration: 100 })
-          );
-          opacity.value = withTiming(1, { duration: 300 });
-        }, 2000);
       };
 
       window.addEventListener('beforeinstallprompt', handler);
+
+      setTimeout(() => {
+        setShowPrompt(true);
+        setCanInstall(true);
+        scale.value = withSequence(
+          withTiming(1.1, { duration: 200, easing: Easing.out(Easing.cubic) }),
+          withTiming(1, { duration: 100 })
+        );
+        opacity.value = withTiming(1, { duration: 300 });
+      }, 2000);
 
       return () => window.removeEventListener('beforeinstallprompt', handler);
     }

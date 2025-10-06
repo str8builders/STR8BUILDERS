@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 
 export interface Client {
   id: string;
@@ -7,8 +8,8 @@ export interface Client {
   phone: string;
   address: string;
   status: 'Active' | 'Completed' | 'Pending';
-  projectCount: number;
-  totalBilled: number;
+  projectCount?: number;
+  totalBilled?: number;
   hourlyRate: number;
   createdAt: Date;
 }
@@ -58,6 +59,7 @@ export interface Invoice {
   clientId: string;
   clientName: string;
   invoiceNumber: string;
+  projectName?: string;
   date: string;
   dueDate: string;
   amount: number;
@@ -72,121 +74,300 @@ export const useAppData = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [timesheets, setTimesheets] = useState<TimesheetEntry[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Load data from storage on mount
   useEffect(() => {
     loadData();
   }, []);
 
-  const loadData = () => {
+  const loadData = async () => {
     try {
-      const savedClients = localStorage.getItem('str8build_clients');
-      const savedProjects = localStorage.getItem('str8build_projects');
-      const savedTimesheets = localStorage.getItem('str8build_timesheets');
-      const savedInvoices = localStorage.getItem('str8build_invoices');
-
-      if (savedClients) setClients(JSON.parse(savedClients).map((c: any) => ({ ...c, createdAt: new Date(c.createdAt) })));
-      if (savedProjects) setProjects(JSON.parse(savedProjects).map((p: any) => ({ ...p, createdAt: new Date(p.createdAt) })));
-      if (savedTimesheets) setTimesheets(JSON.parse(savedTimesheets).map((t: any) => ({ ...t, createdAt: new Date(t.createdAt) })));
-      if (savedInvoices) setInvoices(JSON.parse(savedInvoices).map((i: any) => ({ ...i, createdAt: new Date(i.createdAt) })));
+      setLoading(true);
+      await Promise.all([
+        loadClients(),
+        loadProjects(),
+        loadTimesheets(),
+        loadInvoices(),
+      ]);
     } catch (error) {
       console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const saveData = (key: string, data: any) => {
-    try {
-      localStorage.setItem(key, JSON.stringify(data));
-    } catch (error) {
-      console.error('Error saving data:', error);
+  const loadClients = async () => {
+    const { data, error } = await supabase
+      .from('clients')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error loading clients:', error);
+      return;
+    }
+
+    if (data) {
+      setClients(data.map(c => ({
+        id: c.id,
+        name: c.name,
+        email: c.email || '',
+        phone: c.phone || '',
+        address: c.address || '',
+        status: c.status || 'Active',
+        hourlyRate: c.hourly_rate || 0,
+        createdAt: new Date(c.created_at),
+      })));
     }
   };
 
-  // Client operations
-  const addClient = (clientData: Omit<Client, 'id' | 'projectCount' | 'totalBilled' | 'createdAt'>) => {
-    const newClient: Client = {
-      ...clientData,
-      id: Date.now().toString(),
-      projectCount: 0,
-      totalBilled: 0,
-      createdAt: new Date(),
-    };
-    
-    const updatedClients = [...clients, newClient];
-    setClients(updatedClients);
-    saveData('str8build_clients', updatedClients);
-    return newClient;
-  };
+  const loadProjects = async () => {
+    const { data, error } = await supabase
+      .from('projects')
+      .select(`
+        *,
+        clients (name)
+      `)
+      .order('created_at', { ascending: false });
 
-  const updateClient = (clientId: string, updates: Partial<Client>) => {
-    const updatedClients = clients.map(client => 
-      client.id === clientId ? { ...client, ...updates } : client
-    );
-    setClients(updatedClients);
-    saveData('str8build_clients', updatedClients);
-  };
-
-  const deleteClient = (clientId: string) => {
-    const updatedClients = clients.filter(client => client.id !== clientId);
-    setClients(updatedClients);
-    saveData('str8build_clients', updatedClients);
-  };
-
-  // Project operations
-  const addProject = (projectData: Omit<Project, 'id' | 'createdAt'>) => {
-    const newProject: Project = {
-      ...projectData,
-      id: Date.now().toString(),
-      createdAt: new Date(),
-    };
-    
-    const updatedProjects = [...projects, newProject];
-    setProjects(updatedProjects);
-    saveData('str8build_projects', updatedProjects);
-
-    // Update client project count
-    const client = clients.find(c => c.id === projectData.clientId);
-    if (client) {
-      updateClient(client.id, { projectCount: client.projectCount + 1 });
+    if (error) {
+      console.error('Error loading projects:', error);
+      return;
     }
 
-    return newProject;
+    if (data) {
+      setProjects(data.map(p => ({
+        id: p.id,
+        name: p.name,
+        client: p.clients?.name || '',
+        clientId: p.client_id,
+        location: p.location || '',
+        progress: p.progress || 0,
+        deadline: p.deadline || '',
+        hourlyRate: p.hourly_rate || 0,
+        status: p.status || 'Planning',
+        estimatedCompletion: p.estimated_completion || '',
+        createdAt: new Date(p.created_at),
+      })));
+    }
   };
 
-  // Timesheet operations
-  const addTimesheetEntry = (entryData: Omit<TimesheetEntry, 'id' | 'createdAt'>) => {
-    const newEntry: TimesheetEntry = {
-      ...entryData,
-      id: Date.now().toString(),
-      createdAt: new Date(),
-    };
-    
-    const updatedTimesheets = [...timesheets, newEntry];
-    setTimesheets(updatedTimesheets);
-    saveData('str8build_timesheets', updatedTimesheets);
-    return newEntry;
+  const loadTimesheets = async () => {
+    const { data, error } = await supabase
+      .from('time_entries')
+      .select(`
+        *,
+        clients (name),
+        projects (name)
+      `)
+      .order('date', { ascending: false });
+
+    if (error) {
+      console.error('Error loading timesheets:', error);
+      return;
+    }
+
+    if (data) {
+      setTimesheets(data.map(t => ({
+        id: t.id,
+        clientId: t.client_id,
+        projectId: t.project_id,
+        projectName: t.projects?.name || '',
+        clientName: t.clients?.name || '',
+        date: t.date,
+        startTime: t.start_time || '',
+        endTime: t.end_time || '',
+        hours: t.hours || 0,
+        rate: t.rate || 0,
+        description: t.description || '',
+        invoiced: t.invoiced || false,
+        invoiceId: t.invoice_id,
+        createdAt: new Date(t.created_at),
+      })));
+    }
   };
 
-  const updateTimesheetEntry = (entryId: string, updates: Partial<TimesheetEntry>) => {
-    const updatedTimesheets = timesheets.map(entry => 
-      entry.id === entryId ? { ...entry, ...updates } : entry
-    );
-    setTimesheets(updatedTimesheets);
-    saveData('str8build_timesheets', updatedTimesheets);
+  const loadInvoices = async () => {
+    const { data, error } = await supabase
+      .from('invoices')
+      .select(`
+        *,
+        clients (name)
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error loading invoices:', error);
+      return;
+    }
+
+    if (data) {
+      setInvoices(data.map(i => ({
+        id: i.id,
+        clientId: i.client_id,
+        clientName: i.clients?.name || '',
+        invoiceNumber: i.invoice_number,
+        date: i.date,
+        dueDate: i.due_date,
+        amount: i.amount || 0,
+        status: i.status || 'Draft',
+        items: i.items || [],
+        notes: i.notes,
+        createdAt: new Date(i.created_at),
+      })));
+    }
   };
 
-  // Invoice operations
+  const addClient = async (clientData: Omit<Client, 'id' | 'projectCount' | 'totalBilled' | 'createdAt'>) => {
+    const { data, error } = await supabase
+      .from('clients')
+      .insert({
+        name: clientData.name,
+        email: clientData.email,
+        phone: clientData.phone,
+        address: clientData.address,
+        status: clientData.status,
+        hourly_rate: clientData.hourlyRate,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error adding client:', error);
+      throw error;
+    }
+
+    if (data) {
+      await loadClients();
+      return data;
+    }
+  };
+
+  const updateClient = async (clientId: string, updates: Partial<Client>) => {
+    const { error } = await supabase
+      .from('clients')
+      .update({
+        name: updates.name,
+        email: updates.email,
+        phone: updates.phone,
+        address: updates.address,
+        status: updates.status,
+        hourly_rate: updates.hourlyRate,
+      })
+      .eq('id', clientId);
+
+    if (error) {
+      console.error('Error updating client:', error);
+      throw error;
+    }
+
+    await loadClients();
+  };
+
+  const deleteClient = async (clientId: string) => {
+    const { error } = await supabase
+      .from('clients')
+      .delete()
+      .eq('id', clientId);
+
+    if (error) {
+      console.error('Error deleting client:', error);
+      throw error;
+    }
+
+    await loadClients();
+  };
+
+  const addProject = async (projectData: Omit<Project, 'id' | 'createdAt'>) => {
+    const { data, error } = await supabase
+      .from('projects')
+      .insert({
+        name: projectData.name,
+        client_id: projectData.clientId,
+        location: projectData.location,
+        progress: projectData.progress,
+        deadline: projectData.deadline,
+        hourly_rate: projectData.hourlyRate,
+        status: projectData.status,
+        estimated_completion: projectData.estimatedCompletion,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error adding project:', error);
+      throw error;
+    }
+
+    if (data) {
+      await loadProjects();
+      return data;
+    }
+  };
+
+  const addTimesheetEntry = async (entryData: Omit<TimesheetEntry, 'id' | 'createdAt'>) => {
+    const { data, error } = await supabase
+      .from('time_entries')
+      .insert({
+        client_id: entryData.clientId,
+        project_id: entryData.projectId,
+        date: entryData.date,
+        start_time: entryData.startTime,
+        end_time: entryData.endTime,
+        hours: entryData.hours,
+        rate: entryData.rate,
+        description: entryData.description,
+        invoiced: entryData.invoiced,
+        invoice_id: entryData.invoiceId,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error adding timesheet entry:', error);
+      throw error;
+    }
+
+    if (data) {
+      await loadTimesheets();
+      return data;
+    }
+  };
+
+  const updateTimesheetEntry = async (entryId: string, updates: Partial<TimesheetEntry>) => {
+    const { error } = await supabase
+      .from('time_entries')
+      .update({
+        date: updates.date,
+        start_time: updates.startTime,
+        end_time: updates.endTime,
+        hours: updates.hours,
+        rate: updates.rate,
+        description: updates.description,
+        invoiced: updates.invoiced,
+        invoice_id: updates.invoiceId,
+      })
+      .eq('id', entryId);
+
+    if (error) {
+      console.error('Error updating timesheet entry:', error);
+      throw error;
+    }
+
+    await loadTimesheets();
+  };
+
   const generateInvoiceNumber = () => {
     const year = new Date().getFullYear();
     const count = invoices.length + 1;
     return `INV-${year}-${count.toString().padStart(4, '0')}`;
   };
 
-  const createInvoice = (clientId: string, timesheetEntryIds: string[], notes?: string) => {
+  const createInvoice = async (clientId: string, timesheetEntryIds: string[], notes?: string) => {
     const client = clients.find(c => c.id === clientId);
     if (!client) return null;
 
-    const selectedEntries = timesheets.filter(entry => 
+    const selectedEntries = timesheets.filter(entry =>
       timesheetEntryIds.includes(entry.id) && !entry.invoiced
     );
 
@@ -203,68 +384,80 @@ export const useAppData = () => {
 
     const totalAmount = items.reduce((sum, item) => sum + item.amount, 0);
     const dueDate = new Date();
-    dueDate.setDate(dueDate.getDate() + 30); // 30 days from now
+    dueDate.setDate(dueDate.getDate() + 30);
 
-    const newInvoice: Invoice = {
-      id: Date.now().toString(),
-      clientId,
-      clientName: client.name,
-      invoiceNumber: generateInvoiceNumber(),
-      date: new Date().toISOString().split('T')[0],
-      dueDate: dueDate.toISOString().split('T')[0],
-      amount: totalAmount,
-      status: 'Draft',
-      items,
-      notes,
-      createdAt: new Date(),
-    };
+    const { data, error } = await supabase
+      .from('invoices')
+      .insert({
+        client_id: clientId,
+        invoice_number: generateInvoiceNumber(),
+        date: new Date().toISOString().split('T')[0],
+        due_date: dueDate.toISOString().split('T')[0],
+        amount: totalAmount,
+        status: 'Draft',
+        items: items,
+        notes: notes,
+      })
+      .select()
+      .single();
 
-    const updatedInvoices = [...invoices, newInvoice];
-    setInvoices(updatedInvoices);
-    saveData('str8build_invoices', updatedInvoices);
+    if (error) {
+      console.error('Error creating invoice:', error);
+      throw error;
+    }
 
-    // Mark timesheet entries as invoiced
-    selectedEntries.forEach(entry => {
-      updateTimesheetEntry(entry.id, { invoiced: true, invoiceId: newInvoice.id });
-    });
-
-    // Update client total billed
-    updateClient(clientId, { totalBilled: client.totalBilled + totalAmount });
-
-    return newInvoice;
+    if (data) {
+      for (const entry of selectedEntries) {
+        await updateTimesheetEntry(entry.id, { invoiced: true, invoiceId: data.id });
+      }
+      await loadInvoices();
+      return data;
+    }
   };
 
-  const updateInvoice = (invoiceId: string, updates: Partial<Invoice>) => {
-    const updatedInvoices = invoices.map(invoice => 
-      invoice.id === invoiceId ? { ...invoice, ...updates } : invoice
-    );
-    setInvoices(updatedInvoices);
-    saveData('str8build_invoices', updatedInvoices);
+  const updateInvoice = async (invoiceId: string, updates: Partial<Invoice>) => {
+    const { error } = await supabase
+      .from('invoices')
+      .update({
+        status: updates.status,
+        amount: updates.amount,
+        due_date: updates.dueDate,
+        notes: updates.notes,
+        items: updates.items,
+      })
+      .eq('id', invoiceId);
+
+    if (error) {
+      console.error('Error updating invoice:', error);
+      throw error;
+    }
+
+    await loadInvoices();
   };
 
-  const deleteInvoice = (invoiceId: string) => {
+  const deleteInvoice = async (invoiceId: string) => {
     const invoice = invoices.find(inv => inv.id === invoiceId);
     if (!invoice) return;
 
-    // Mark associated timesheet entries as not invoiced
-    invoice.items.forEach(item => {
+    for (const item of invoice.items) {
       if (item.timesheetEntryId) {
-        updateTimesheetEntry(item.timesheetEntryId, { invoiced: false, invoiceId: undefined });
+        await updateTimesheetEntry(item.timesheetEntryId, { invoiced: false, invoiceId: undefined });
       }
-    });
-
-    // Update client total billed
-    const client = clients.find(c => c.id === invoice.clientId);
-    if (client) {
-      updateClient(client.id, { totalBilled: client.totalBilled - invoice.amount });
     }
 
-    const updatedInvoices = invoices.filter(inv => inv.id !== invoiceId);
-    setInvoices(updatedInvoices);
-    saveData('str8build_invoices', updatedInvoices);
+    const { error } = await supabase
+      .from('invoices')
+      .delete()
+      .eq('id', invoiceId);
+
+    if (error) {
+      console.error('Error deleting invoice:', error);
+      throw error;
+    }
+
+    await loadInvoices();
   };
 
-  // Helper functions
   const getClientInvoices = (clientId: string) => {
     return invoices.filter(invoice => invoice.clientId === clientId);
   };
@@ -290,35 +483,32 @@ export const useAppData = () => {
   };
 
   return {
-    // Data
     clients,
     projects,
     timesheets,
     invoices,
-    
-    // Client operations
+    loading,
+
     addClient,
     updateClient,
     deleteClient,
-    
-    // Project operations
+
     addProject,
-    
-    // Timesheet operations
+
     addTimesheetEntry,
     updateTimesheetEntry,
-    
-    // Invoice operations
+
     createInvoice,
     updateInvoice,
     deleteInvoice,
-    
-    // Helper functions
+
     getClientInvoices,
     getClientTimesheets,
     getUnbilledTimesheets,
     getTotalUnbilledHours,
     getTotalUnbilledAmount,
     getProjectsByClient,
+
+    refreshData: loadData,
   };
 };
