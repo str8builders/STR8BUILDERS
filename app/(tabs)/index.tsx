@@ -104,34 +104,33 @@ export default function Dashboard() {
           </View>
         )}
 
-        <View style={styles.row}>
-          {isWidgetVisible('weather') && (
-            <View style={[styles.halfWidth, styles.widgetWrapper]}>
-              <WeatherWidget />
-              {isEditMode && (
-                <Pressable
-                  style={styles.widgetDeleteButton}
-                  onPress={() => toggleWidgetVisibility('weather')}
-                >
-                  <X color="#EF4444" size={18} />
-                </Pressable>
-              )}
-            </View>
-          )}
-          {isWidgetVisible('quickStats') && (
-            <View style={[styles.halfWidth, styles.widgetWrapper]}>
-              <QuickStats />
-              {isEditMode && (
-                <Pressable
-                  style={styles.widgetDeleteButton}
-                  onPress={() => toggleWidgetVisibility('quickStats')}
-                >
-                  <X color="#EF4444" size={18} />
-                </Pressable>
-              )}
-            </View>
-          )}
-        </View>
+        {isWidgetVisible('weather') && (
+          <View style={styles.widgetWrapper}>
+            <WeatherWidget />
+            {isEditMode && (
+              <Pressable
+                style={styles.widgetDeleteButton}
+                onPress={() => toggleWidgetVisibility('weather')}
+              >
+                <X color="#EF4444" size={18} />
+              </Pressable>
+            )}
+          </View>
+        )}
+
+        {isWidgetVisible('quickStats') && (
+          <View style={styles.widgetWrapper}>
+            <QuickStats />
+            {isEditMode && (
+              <Pressable
+                style={styles.widgetDeleteButton}
+                onPress={() => toggleWidgetVisibility('quickStats')}
+              >
+                <X color="#EF4444" size={18} />
+              </Pressable>
+            )}
+          </View>
+        )}
 
         {customWidgets.map((widget) => (
           <View key={widget.id} style={styles.customWidgetContainer}>
@@ -351,6 +350,7 @@ const styles = StyleSheet.create({
   },
   widgetWrapper: {
     position: 'relative',
+    marginBottom: 16,
   },
   widgetDeleteButton: {
     position: 'absolute',
