@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, Modal, TextInput, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, Modal, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { AnimatedBackground } from '@/components/ui/AnimatedBackground';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { User, Building, DollarSign, Bell, Shield, Smartphone, CircleHelp as HelpCircle, Info, ChevronRight, BookOpen, FileText, X, Edit, Check } from 'lucide-react-native';
 import { InvoiceManager } from '@/components/finance/InvoiceManager';
 import { ResourcesLibrary } from '@/components/resources/ResourcesLibrary';
 import { ReportsAnalytics } from '@/components/reports/ReportsAnalytics';
+import { getCurrentLocation, getLocationString } from '@/utils/locationService';
 
 type ModalType = 'profile' | 'company' | 'rate' | 'notifications' | 'privacy' | 'appSettings' | 'help' | null;
 type ScreenType = 'settings' | 'finance' | 'resources' | 'reports';
@@ -17,11 +18,30 @@ export default function Settings() {
     email: 'c.samu@str8build.co.nz',
     phone: '+64 27 123 4567',
     hourlyRate: 85,
-    location: 'Bay of Plenty, New Zealand',
+    location: 'Getting location...',
     abn: '123-456-789',
     address: '123 Construction St, Tauranga',
     bankAccount: 'ANZ 12-3456-7890123-00',
   });
+
+  useEffect(() => {
+    loadUserLocation();
+  }, []);
+
+  const loadUserLocation = async () => {
+    try {
+      const location = await getCurrentLocation();
+      if (location) {
+        const locationString = getLocationString(location);
+        setUserInfo(prev => ({ ...prev, location: locationString }));
+      } else {
+        setUserInfo(prev => ({ ...prev, location: 'Location unavailable' }));
+      }
+    } catch (error) {
+      console.error('Error loading location:', error);
+      setUserInfo(prev => ({ ...prev, location: 'Location unavailable' }));
+    }
+  };
 
   const [appPreferences, setAppPreferences] = useState({
     notifications: {
